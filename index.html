@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CARDIAC-CPR — EMS-ED Handoff Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --accent:    #e63946;
+      --accent2:   #f4a261;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --pill-bg:   #21262d;
+      --check-on:  #238636;
+      --mono:      'Space Mono', monospace;
+      --sans:      'DM Sans', sans-serif;
+      --radius:    10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--accent);
+      padding: 20px 24px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-left h1 {
+      font-family: var(--mono);
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .header-left .subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: filter 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--pill-bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn:hover { filter: brightness(1.15); }
+
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    /* ── Disclaimer Banner ── */
+    .disclaimer-banner {
+      background: #1c1207;
+      border-bottom: 1px solid #5a3e1b;
+      padding: 10px 20px;
+      font-size: 0.75rem;
+      color: var(--accent2);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .disclaimer-banner strong { font-weight: 700; }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 28px 16px;
+    }
+
+    /* ── Section label pill ── */
+    .section-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 14px 6px 6px;
+      margin-bottom: 14px;
+    }
+    .section-pill .letter {
+      font-family: var(--mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-pill .label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Form elements ── */
+    label.field-label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 1rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(230,57,70,0.18);
+    }
+    select option { background: var(--bg); }
+    textarea { resize: vertical; min-height: 72px; }
+
+    /* ── Radio / Checkbox grid ── */
+    .option-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .opt-btn {
+      position: relative;
+      cursor: pointer;
+    }
+    .opt-btn input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .opt-btn .opt-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--pill-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: border-color 0.12s, background 0.12s, color 0.12s;
+      user-select: none;
+    }
+    .opt-btn input:checked + .opt-label {
+      border-color: var(--accent);
+      background: rgba(230,57,70,0.12);
+      color: #fff;
+    }
+    .opt-btn input[type="checkbox"]:checked + .opt-label {
+      border-color: var(--check-on);
+      background: rgba(35,134,54,0.15);
+    }
+    .opt-btn .opt-label::before {
+      content: '';
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .opt-btn input[type="checkbox"] + .opt-label::before {
+      border-radius: 4px;
+    }
+    .opt-btn input:checked + .opt-label::before {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+    .opt-btn input[type="checkbox"]:checked + .opt-label::before {
+      border-color: var(--check-on);
+      background: var(--check-on);
+    }
+
+    /* ── Location row ── */
+    .location-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+    }
+    .location-row .loc-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    /* ── Sub-label / divider ── */
+    .sub-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 500;
+      margin: 14px 0 6px;
+    }
+
+    /* ── Field row ── */
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .field-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── Medications grid ── */
+    .med-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .med-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+    .med-item label.field-label { margin-bottom: 4px; }
+    .med-item input { padding: 8px 10px; font-size: 0.9rem; }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 780px;
+      margin: 32px auto 0;
+      padding: 20px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    footer a { color: var(--accent2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .footer-disclaimer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Reset / Email buttons row ── */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    /* ── Divider ── */
+    hr.section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0 20px;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--check-on);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: transform 0.3s ease;
+      z-index: 999;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Witnessed badge ── */
+    .witnessed-badge {
+      display: inline-block;
+      background: rgba(244,162,97,0.15);
+      border: 1px solid var(--accent2);
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 0.72rem;
+      color: var(--accent2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <h1>CARDIAC-CPR</h1>
+      <div class="subtitle">EMS → ED Handoff Communication Tool</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="resetForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+        Reset
+      </button>
+      <button class="btn btn-primary" onclick="emailReport()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email Report
+      </button>
+    </div>
+  </header>
+
+  <!-- Disclaimer Banner -->
+  <div class="disclaimer-banner">
+    <strong>⚠️ EDUCATIONAL USE ONLY</strong> — This tool is not medical advice and does not constitute clinical guidance. See full disclaimer below.
+  </div>
+
+  <!-- Main -->
+  <main id="form-area">
+
+    <!-- Location of Arrest -->
+    <div class="location-row">
+      <span class="loc-label">Location of Arrest</span>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="location" value="Home"><span class="opt-label">🏠 Home</span></label>
+        <label class="opt-btn"><input type="radio" name="location" value="Healthcare Facility"><span class="opt-label">🏥 Healthcare Facility</span></label>
+        <label class="opt-btn"><input type="radio" name="location" value="Outside"><span class="opt-label">🌳 Outside</span></label>
+      </div>
+    </div>
+
+    <!-- C: Cause -->
+    <div class="section-pill">
+      <span class="letter">C</span><span class="label">Cause (if known)</span>
+    </div>
+    <div class="card">
+      <label class="field-label">Suspected or known cause</label>
+      <input type="text" id="cause" placeholder="e.g. STEMI, drowning, trauma, OD, unknown…" />
+    </div>
+
+    <!-- A: Age -->
+    <div class="section-pill">
+      <span class="letter">A</span><span class="label">Age</span>
+    </div>
+    <div class="card">
+      <label class="field-label">Age (years)</label>
+      <input type="number" id="age" min="0" max="130" placeholder="—" style="max-width:160px;" />
+    </div>
+
+    <!-- R: Rhythm -->
+    <div class="section-pill">
+      <span class="letter">R</span><span class="label">Rhythm</span>
+    </div>
+    <div class="card">
+      <div class="sub-label">Initial rhythm</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="rhythm_initial" value="VFib"><span class="opt-label">VFib</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_initial" value="VTach"><span class="opt-label">VTach</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_initial" value="PEA"><span class="opt-label">PEA</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_initial" value="Asystole"><span class="opt-label">Asystole</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_initial" value="Sinus"><span class="opt-label">Sinus</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_initial" value="Other"><span class="opt-label">Other</span></label>
+      </div>
+      <div id="rhythm_initial_other_wrap" style="display:none;margin-top:10px;">
+        <input type="text" id="rhythm_initial_other" placeholder="Specify initial rhythm…" />
+      </div>
+
+      <hr class="section-divider" />
+
+      <div class="sub-label">Most recent rhythm</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="rhythm_recent" value="VFib"><span class="opt-label">VFib</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_recent" value="VTach"><span class="opt-label">VTach</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_recent" value="PEA"><span class="opt-label">PEA</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_recent" value="Asystole"><span class="opt-label">Asystole</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_recent" value="Sinus"><span class="opt-label">Sinus</span></label>
+        <label class="opt-btn"><input type="radio" name="rhythm_recent" value="Other"><span class="opt-label">Other</span></label>
+      </div>
+      <div id="rhythm_recent_other_wrap" style="display:none;margin-top:10px;">
+        <input type="text" id="rhythm_recent_other" placeholder="Specify most recent rhythm…" />
+      </div>
+    </div>
+
+    <!-- D: Downtime -->
+    <div class="section-pill">
+      <span class="letter">D</span><span class="label">Downtime</span>
+    </div>
+    <div class="card">
+      <label class="field-label">Estimated downtime (minutes)</label>
+      <input type="number" id="downtime" min="0" max="999" placeholder="—" style="max-width:160px;" />
+    </div>
+
+    <!-- I: Interventions -->
+    <div class="section-pill">
+      <span class="letter">I</span><span class="label">Interventions</span>
+    </div>
+    <div class="card">
+      <div class="sub-label">Bystander CPR</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="bystander_cpr" value="Yes"><span class="opt-label">Yes</span></label>
+        <label class="opt-btn"><input type="radio" name="bystander_cpr" value="No"><span class="opt-label">No</span></label>
+      </div>
+
+      <hr class="section-divider" />
+
+      <div class="sub-label">Defibrillation attempts</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="defib" value="Yes" id="defib_yes"><span class="opt-label">Yes</span></label>
+        <label class="opt-btn"><input type="radio" name="defib" value="No"><span class="opt-label">No</span></label>
+      </div>
+      <div id="defib_count_wrap" style="display:none;margin-top:12px;">
+        <label class="field-label">How many times?</label>
+        <input type="number" id="defib_count" min="1" max="99" placeholder="—" style="max-width:120px;" />
+      </div>
+    </div>
+
+    <!-- A: Airway -->
+    <div class="section-pill">
+      <span class="letter">A</span><span class="label">Airway Type</span>
+    </div>
+    <div class="card">
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="airway" value="ET Tube"><span class="opt-label">ET Tube</span></label>
+        <label class="opt-btn"><input type="radio" name="airway" value="LMA"><span class="opt-label">LMA</span></label>
+        <label class="opt-btn"><input type="radio" name="airway" value="King Airway"><span class="opt-label">King Airway</span></label>
+        <label class="opt-btn"><input type="radio" name="airway" value="Not Intubated"><span class="opt-label">Not Intubated</span></label>
+      </div>
+    </div>
+
+    <!-- C: Circulation -->
+    <div class="section-pill">
+      <span class="letter">C</span><span class="label">Circulation</span>
+    </div>
+    <div class="card">
+      <div class="sub-label">ROSC achieved?</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="rosc" value="Yes" id="rosc_yes"><span class="opt-label">Yes</span></label>
+        <label class="opt-btn"><input type="radio" name="rosc" value="No"><span class="opt-label">No</span></label>
+      </div>
+      <div id="rosc_details_wrap" style="display:none;margin-top:12px;">
+        <div class="field-row">
+          <div>
+            <label class="field-label">How many times?</label>
+            <input type="number" id="rosc_count" min="1" max="99" placeholder="—" />
+          </div>
+          <div>
+            <label class="field-label">Duration (minutes)</label>
+            <input type="number" id="rosc_duration" min="0" max="999" placeholder="—" />
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <div class="sub-label">Vascular Access</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="checkbox" name="access" value="IV"><span class="opt-label">IV</span></label>
+        <label class="opt-btn"><input type="checkbox" name="access" value="IO"><span class="opt-label">IO</span></label>
+        <label class="opt-btn"><input type="checkbox" name="access" value="Other"><span class="opt-label">Other</span></label>
+        <label class="opt-btn"><input type="checkbox" name="access" value="None"><span class="opt-label">None</span></label>
+      </div>
+    </div>
+
+    <!-- C: Code Status -->
+    <div class="section-pill">
+      <span class="letter" style="background:var(--accent2);color:#111;">C</span><span class="label">Code Status</span>
+    </div>
+    <div class="card">
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="code_status" value="Unknown"><span class="opt-label">Unknown</span></label>
+        <label class="opt-btn"><input type="radio" name="code_status" value="DNR"><span class="opt-label">DNR</span></label>
+        <label class="opt-btn"><input type="radio" name="code_status" value="Full Code"><span class="opt-label">Full Code</span></label>
+      </div>
+    </div>
+
+    <!-- P: Pre-Hospital Medications -->
+    <div class="section-pill">
+      <span class="letter" style="background:var(--accent2);color:#111;">P</span><span class="label">Pre-Hospital Medications</span>
+    </div>
+    <div class="card">
+      <div class="med-grid">
+        <div class="med-item">
+          <label class="field-label">Epinephrine (doses)</label>
+          <input type="number" id="med_epi" min="0" max="99" placeholder="0" />
+        </div>
+        <div class="med-item">
+          <label class="field-label">Calcium (doses)</label>
+          <input type="number" id="med_calcium" min="0" max="99" placeholder="0" />
+        </div>
+        <div class="med-item">
+          <label class="field-label">Bicarbonate (doses)</label>
+          <input type="number" id="med_bicarb" min="0" max="99" placeholder="0" />
+        </div>
+        <div class="med-item">
+          <label class="field-label">Amiodarone (mg)</label>
+          <select id="med_amio">
+            <option value="">—</option>
+            <option value="150">150</option>
+            <option value="300">300</option>
+            <option value="450">450</option>
+            <option value="600">600</option>
+          </select>
+        </div>
+        <div class="med-item">
+          <label class="field-label">Lidocaine (mg)</label>
+          <select id="med_lido">
+            <option value="">—</option>
+            <option value="100">100</option>
+            <option value="150">150</option>
+            <option value="200">200</option>
+          </select>
+        </div>
+        <div class="med-item">
+          <label class="field-label">Other medication(s)</label>
+          <input type="text" id="med_other" placeholder="Drug / dose…" />
+        </div>
+      </div>
+    </div>
+
+    <!-- R: Report / Witnessed -->
+    <div class="section-pill">
+      <span class="letter" style="background:var(--accent2);color:#111;">R</span><span class="label">Report</span>
+    </div>
+    <div class="card">
+      <div class="sub-label">Witnessed Arrest?</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="witnessed" value="Yes"><span class="opt-label">Yes</span></label>
+        <label class="opt-btn"><input type="radio" name="witnessed" value="No"><span class="opt-label">No</span></label>
+      </div>
+
+      <hr class="section-divider" />
+
+      <label class="field-label">Additional notes</label>
+      <textarea id="notes" placeholder="Free text notes from EMS crew…"></textarea>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="emailReport()" style="flex:1; justify-content:center; padding:14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email Completed Report
+      </button>
+      <button class="btn btn-secondary" onclick="copyToClipboard()" style="flex:1; justify-content:center; padding:14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy to Clipboard
+      </button>
+      <button class="btn btn-ghost" onclick="resetForm()" style="padding:14px 18px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+        Reset
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-disclaimer">
+      <strong style="color:var(--accent2);">⚠️ Disclaimer — Please Read</strong><br/><br/>
+      This tool is intended <strong>solely for educational and training purposes</strong>. It does not constitute medical advice, clinical guidance, or a substitute for professional judgment. The creators, contributors, and any affiliated institutions assume <strong>no liability</strong> whatsoever for patient outcomes, clinical decisions, or any use of this tool in any setting. All resuscitation decisions must be made by qualified, licensed medical professionals in accordance with local protocols, applicable laws, and current evidence-based guidelines.<br/><br/>
+      This tool is not a medical device and has not been reviewed or approved by any regulatory authority (including the FDA, CE, or equivalent). Use of this tool does not imply endorsement by any institution or health system. <strong>Do not rely on this tool for direct patient care.</strong>
+    </div>
+    <p>
+      <strong style="color:var(--text);">Methodology &amp; Citation:</strong><br/>
+      This handoff tool is based on published research. See:
+      <a href="https://pubmed.ncbi.nlm.nih.gov/40084268/" target="_blank" rel="noopener noreferrer">
+        CARDIAC Mnemonic for EMS-to-ED Cardiac Arrest Handoff — PubMed 40084268 ↗
+      </a>
+    </p>
+    <p style="margin-top:10px;">Also see: <a href="https://pubmed.ncbi.nlm.nih.gov/37196800/" target="_blank" rel="noopener noreferrer">PubMed 37196800 ↗</a></p>
+    <p style="margin-top:12px; color:#4a5568;">
+      Open-source educational tool. No patient data is collected or transmitted by this page.
+      Email function uses your local mail client only.
+    </p>
+  </footer>
+
+  <div id="toast">✓ Copied to clipboard</div>
+
+  <script>
+    // Show/hide "Other" rhythm inputs
+    document.querySelectorAll('input[name="rhythm_initial"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('rhythm_initial_other_wrap').style.display =
+          r.value === 'Other' && r.checked ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('input[name="rhythm_recent"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('rhythm_recent_other_wrap').style.display =
+          r.value === 'Other' && r.checked ? 'block' : 'none';
+      });
+    });
+
+    // Show/hide defib count
+    document.querySelectorAll('input[name="defib"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('defib_count_wrap').style.display =
+          r.value === 'Yes' && r.checked ? 'block' : 'none';
+      });
+    });
+
+    // Show/hide ROSC details
+    document.querySelectorAll('input[name="rosc"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('rosc_details_wrap').style.display =
+          r.value === 'Yes' && r.checked ? 'block' : 'none';
+      });
+    });
+
+    // ── Build report string ──
+    function buildReport() {
+      const val = (id) => (document.getElementById(id)?.value || '').trim();
+      const radio = (name) => {
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : '—';
+      };
+      const checks = (name) => {
+        const els = document.querySelectorAll(`input[name="${name}"]:checked`);
+        return els.length ? Array.from(els).map(e => e.value).join(', ') : '—';
+      };
+
+      const rhythmInit = radio('rhythm_initial') === 'Other'
+        ? 'Other: ' + val('rhythm_initial_other')
+        : radio('rhythm_initial');
+      const rhythmRec = radio('rhythm_recent') === 'Other'
+        ? 'Other: ' + val('rhythm_recent_other')
+        : radio('rhythm_recent');
+
+      const defibVal = radio('defib');
+      const defibStr = defibVal === 'Yes'
+        ? `Yes (${val('defib_count') || '?'} times)`
+        : defibVal;
+
+      const roscVal = radio('rosc');
+      const roscStr = roscVal === 'Yes'
+        ? `Yes — ${val('rosc_count') || '?'} time(s), ~${val('rosc_duration') || '?'} min`
+        : roscVal;
+
+      const medLines = [
+        val('med_epi')     ? `Epinephrine: ${val('med_epi')} dose(s)` : '',
+        val('med_calcium') ? `Calcium: ${val('med_calcium')} dose(s)` : '',
+        val('med_bicarb')  ? `Bicarbonate: ${val('med_bicarb')} dose(s)` : '',
+        val('med_amio')    ? `Amiodarone: ${val('med_amio')} mg` : '',
+        val('med_lido')    ? `Lidocaine: ${val('med_lido')} mg` : '',
+        val('med_other')   ? `Other: ${val('med_other')}` : '',
+      ].filter(Boolean).join('\n  ') || '—';
+
+      const ts = new Date().toLocaleString(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      });
+
+      return `CARDIAC — EMS-to-ED Handoff Report
+Generated: ${ts}
+${'─'.repeat(40)}
+
+LOCATION OF ARREST: ${radio('location')}
+
+C — CAUSE (if known): ${val('cause') || '—'}
+
+A — AGE: ${val('age') ? val('age') + ' years' : '—'}
+
+R — RHYTHM
+  Initial:       ${rhythmInit}
+  Most Recent:   ${rhythmRec}
+
+D — DOWNTIME: ${val('downtime') ? val('downtime') + ' minutes' : '—'}
+
+I — INTERVENTIONS
+  Bystander CPR:         ${radio('bystander_cpr')}
+  Defibrillation:        ${defibStr}
+
+A — AIRWAY: ${radio('airway')}
+
+C — CIRCULATION
+  ROSC:                  ${roscStr}
+  Vascular Access:       ${checks('access')}
+
+─── ADDITIONAL ───────────────────────
+
+C — CODE STATUS: ${radio('code_status')}
+
+P — PRE-HOSPITAL MEDICATIONS
+  ${medLines}
+
+R — REPORT
+  Witnessed Arrest:      ${radio('witnessed')}
+  Notes: ${val('notes') || '—'}
+
+${'─'.repeat(40)}
+⚠️  FOR EDUCATIONAL USE ONLY — NOT MEDICAL ADVICE
+Methodology: https://pubmed.ncbi.nlm.nih.gov/40084268/`;
+    }
+
+    // ── Email report ──
+    function emailReport() {
+      const subject = encodeURIComponent('CARDIAC Handoff Report — ' + new Date().toLocaleString(undefined, {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+      const body = encodeURIComponent(buildReport());
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
+
+    // ── Copy to clipboard ──
+    function copyToClipboard() {
+      navigator.clipboard.writeText(buildReport()).then(() => {
+        const t = document.getElementById('toast');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+      });
+    }
+
+    // ── Reset form ──
+    function resetForm() {
+      if (!confirm('Clear all fields and start over?')) return;
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
+      document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
+      document.getElementById('defib_count_wrap').style.display = 'none';
+      document.getElementById('rosc_details_wrap').style.display = 'none';
+      document.getElementById('rhythm_initial_other_wrap').style.display = 'none';
+      document.getElementById('rhythm_recent_other_wrap').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
