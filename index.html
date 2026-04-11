@@ -612,11 +612,15 @@
     <div class="action-row">
       <button class="btn btn-primary" onclick="emailReport()" style="flex:1; justify-content:center; padding:14px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Email Report
+        Email (Local Client)
+      </button>
+      <button class="btn btn-primary" onclick="openEJSModal()" style="flex:1; justify-content:center; padding:14px; background:#1f6feb;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send Direct Email
       </button>
       <button class="btn btn-secondary" onclick="downloadCSV()" style="flex:1; justify-content:center; padding:14px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download CSV
+        Download Report (CSV)
       </button>
       <button class="btn btn-secondary" onclick="copyToClipboard()" style="flex:1; justify-content:center; padding:14px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -649,11 +653,20 @@
       Open-source educational tool. No patient data is collected or transmitted by this page.
       Email function uses your local mail client only.
     </p>
+    <p style="margin-top:12px;">
+      <strong style="color:var(--text);">Contact:</strong>
+      <a href="mailto:CPRHandoff@proton.me" style="color:#79c0ff; font-weight:600;">CPRHandoff@proton.me</a>
+    </p>
   </footer>
 
   <div id="toast">✓ Copied to clipboard</div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
+    // ── EmailJS config — replace these three values after setup ──
+    const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
+    const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
+    const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
     // ── Populate wheel-friendly select elements ──
     function makeSelect(id, min, max, unit, blankLabel) {
       const sel = document.getElementById(id);
@@ -850,7 +863,62 @@ ${bar}
 ${bar}`;
     }
 
-    // ── Email report ──
+    // ── EmailJS modal ──
+    function openEJSModal() {
+      if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+        alert('EmailJS is not configured yet.\n\nSee the setup instructions at the bottom of the page, then add your Public Key, Service ID, and Template ID to the top of the script.');
+        return;
+      }
+      document.getElementById('ejs-to-email').value = '';
+      document.getElementById('ejs-status').textContent = '';
+      const modal = document.getElementById('ejs-modal');
+      modal.style.display = 'flex';
+      setTimeout(() => document.getElementById('ejs-to-email').focus(), 100);
+    }
+
+    function closeEJSModal() {
+      document.getElementById('ejs-modal').style.display = 'none';
+    }
+
+    async function sendViaEmailJS() {
+      const toEmail = document.getElementById('ejs-to-email').value.trim();
+      const status  = document.getElementById('ejs-status');
+      if (!toEmail || !/\S+@\S+\.\S+/.test(toEmail)) {
+        status.style.color = '#e63946';
+        status.textContent = 'Please enter a valid email address.';
+        return;
+      }
+      status.style.color = '#f4a261';
+      status.textContent = 'Sending…';
+      const d = collectData();
+      try {
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email:   toEmail,
+          subject:    `CARDIAC-CPR Handoff — ${d.timestamp}`,
+          report:     buildReport(),
+          // Individual fields available in your template:
+          location:   d.location,      age:        d.age,
+          cause:      d.cause,         downtime:   d.downtime,
+          rhythm_i:   d.rhythm_initial, rhythm_r:  d.rhythm_recent,
+          bystander:  d.bystander_cpr, defib:      d.defibrillation,
+          airway:     d.airway,        rosc:       d.rosc,
+          access:     d.vascular_access, code:     d.code_status,
+          epi:        d.epi,           calcium:    d.calcium,
+          bicarb:     d.bicarb,        amio:       d.amiodarone,
+          lido:       d.lidocaine,     other_meds: d.other_meds,
+          witnessed:  d.witnessed,     notes:      d.notes,
+        });
+        status.style.color = '#3fb950';
+        status.textContent = '✓ Report sent successfully!';
+        setTimeout(closeEJSModal, 1800);
+      } catch (err) {
+        status.style.color = '#e63946';
+        status.textContent = `Send failed: ${err?.text || err?.message || 'unknown error'}`;
+      }
+    }
+
+    // ── Email report (local client) ──
     function emailReport() {
       const d = collectData();
       const subject = encodeURIComponent(`CARDIAC-CPR Handoff — ${d.timestamp}`);
@@ -924,5 +992,21 @@ ${bar}`;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
+  <!-- EmailJS Send Modal -->
+  <div id="ejs-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:24px; max-width:420px; width:100%;">
+      <h3 style="font-family:'Space Mono',monospace; color:#e63946; margin-bottom:6px; font-size:1rem;">Send Report via Email</h3>
+      <p style="font-size:0.78rem; color:#cdd5de; margin-bottom:16px; line-height:1.5;">Enter the recipient's email address. The completed CARDIAC-CPR report will be sent directly — no mail app required.</p>
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Recipient Email</label>
+      <input id="ejs-to-email" type="email" placeholder="attending@hospital.org"
+        style="width:100%; background:#0d1117; border:1px solid #30363d; border-radius:8px; color:#e6edf3; font-size:1rem; padding:10px 14px; outline:none; margin-bottom:14px;" />
+      <div id="ejs-status" style="font-size:0.8rem; min-height:20px; margin-bottom:12px; color:#f4a261;"></div>
+      <div style="display:flex; gap:10px;">
+        <button onclick="sendViaEmailJS()" style="flex:1; background:#e63946; color:#fff; border:none; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Send</button>
+        <button onclick="closeEJSModal()" style="flex:1; background:#21262d; color:#e6edf3; border:1px solid #30363d; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
