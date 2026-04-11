@@ -16,7 +16,7 @@
       --accent:    #e63946;
       --accent2:   #f4a261;
       --text:      #e6edf3;
-      --muted:     #8b949e;
+      --muted:     #cdd5de;
       --pill-bg:   #21262d;
       --check-on:  #238636;
       --mono:      'Space Mono', monospace;
@@ -132,10 +132,10 @@
     }
     .section-pill .label {
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: #e6edf3;
     }
 
     /* ── Card ── */
@@ -153,9 +153,9 @@
       font-size: 0.72rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: #e6edf3;
       margin-bottom: 6px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     input[type="text"],
@@ -257,8 +257,8 @@
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: var(--muted);
-      font-weight: 500;
+      color: #e6edf3;
+      font-weight: 600;
       flex-shrink: 0;
     }
 
@@ -267,8 +267,8 @@
       font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: var(--muted);
-      font-weight: 500;
+      color: #e6edf3;
+      font-weight: 600;
       margin: 14px 0 6px;
     }
 
@@ -418,7 +418,7 @@
     </div>
     <div class="card">
       <label class="field-label">Age (years)</label>
-      <input type="number" id="age" min="0" max="130" placeholder="—" style="max-width:160px;" />
+      <select id="age" style="max-width:180px;"></select>
     </div>
 
     <!-- R: Rhythm -->
@@ -461,7 +461,7 @@
     </div>
     <div class="card">
       <label class="field-label">Estimated downtime (minutes)</label>
-      <input type="number" id="downtime" min="0" max="999" placeholder="—" style="max-width:160px;" />
+      <select id="downtime" style="max-width:180px;"></select>
     </div>
 
     <!-- I: Interventions -->
@@ -555,15 +555,15 @@
       <div class="med-grid">
         <div class="med-item">
           <label class="field-label">Epinephrine (doses)</label>
-          <input type="number" id="med_epi" min="0" max="99" placeholder="0" />
+          <select id="med_epi"></select>
         </div>
         <div class="med-item">
           <label class="field-label">Calcium (doses)</label>
-          <input type="number" id="med_calcium" min="0" max="99" placeholder="0" />
+          <select id="med_calcium"></select>
         </div>
         <div class="med-item">
           <label class="field-label">Bicarbonate (doses)</label>
-          <input type="number" id="med_bicarb" min="0" max="99" placeholder="0" />
+          <select id="med_bicarb"></select>
         </div>
         <div class="med-item">
           <label class="field-label">Amiodarone (mg)</label>
@@ -612,11 +612,15 @@
     <div class="action-row">
       <button class="btn btn-primary" onclick="emailReport()" style="flex:1; justify-content:center; padding:14px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Email Completed Report
+        Email Report
+      </button>
+      <button class="btn btn-secondary" onclick="downloadCSV()" style="flex:1; justify-content:center; padding:14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download CSV
       </button>
       <button class="btn btn-secondary" onclick="copyToClipboard()" style="flex:1; justify-content:center; padding:14px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copy to Clipboard
+        Copy Text
       </button>
       <button class="btn btn-ghost" onclick="resetForm()" style="padding:14px 18px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
@@ -650,7 +654,30 @@
   <div id="toast">✓ Copied to clipboard</div>
 
   <script>
-    // Show/hide "Other" rhythm inputs
+    // ── Populate wheel-friendly select elements ──
+    function makeSelect(id, min, max, unit, blankLabel) {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const blank = document.createElement('option');
+      blank.value = ''; blank.textContent = blankLabel || '—';
+      sel.appendChild(blank);
+      for (let i = min; i <= max; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = unit ? `${i} ${unit}` : i;
+        sel.appendChild(opt);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      makeSelect('age',        1,  120, 'yrs');
+      makeSelect('downtime',   1,  120, 'min');
+      makeSelect('med_epi',    0,  15,  'dose(s)');
+      makeSelect('med_calcium',0,  10,  'dose(s)');
+      makeSelect('med_bicarb', 0,  10,  'dose(s)');
+    });
+
+    // ── Show/hide "Other" rhythm inputs ──
     document.querySelectorAll('input[name="rhythm_initial"]').forEach(r => {
       r.addEventListener('change', () => {
         document.getElementById('rhythm_initial_other_wrap').style.display =
@@ -664,7 +691,7 @@
       });
     });
 
-    // Show/hide defib count
+    // ── Show/hide defib count ──
     document.querySelectorAll('input[name="defib"]').forEach(r => {
       r.addEventListener('change', () => {
         document.getElementById('defib_count_wrap').style.display =
@@ -672,7 +699,7 @@
       });
     });
 
-    // Show/hide ROSC details
+    // ── Show/hide ROSC details ──
     document.querySelectorAll('input[name="rosc"]').forEach(r => {
       r.addEventListener('change', () => {
         document.getElementById('rosc_details_wrap').style.display =
@@ -680,16 +707,19 @@
       });
     });
 
-    // ── Build report string ──
-    function buildReport() {
-      const val = (id) => (document.getElementById(id)?.value || '').trim();
+    // ── Collect all field values into a data object ──
+    function collectData() {
+      const val = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      };
       const radio = (name) => {
         const el = document.querySelector(`input[name="${name}"]:checked`);
-        return el ? el.value : '—';
+        return el ? el.value : '';
       };
       const checks = (name) => {
         const els = document.querySelectorAll(`input[name="${name}"]:checked`);
-        return els.length ? Array.from(els).map(e => e.value).join(', ') : '—';
+        return Array.from(els).map(e => e.value).join(', ');
       };
 
       const rhythmInit = radio('rhythm_initial') === 'Other'
@@ -701,91 +731,192 @@
 
       const defibVal = radio('defib');
       const defibStr = defibVal === 'Yes'
-        ? `Yes (${val('defib_count') || '?'} times)`
-        : defibVal;
+        ? `Yes (${val('defib_count') || '?'} shocks)`
+        : defibVal || '—';
 
       const roscVal = radio('rosc');
       const roscStr = roscVal === 'Yes'
         ? `Yes — ${val('rosc_count') || '?'} time(s), ~${val('rosc_duration') || '?'} min`
-        : roscVal;
+        : roscVal || '—';
 
-      const medLines = [
-        val('med_epi')     ? `Epinephrine: ${val('med_epi')} dose(s)` : '',
-        val('med_calcium') ? `Calcium: ${val('med_calcium')} dose(s)` : '',
-        val('med_bicarb')  ? `Bicarbonate: ${val('med_bicarb')} dose(s)` : '',
-        val('med_amio')    ? `Amiodarone: ${val('med_amio')} mg` : '',
-        val('med_lido')    ? `Lidocaine: ${val('med_lido')} mg` : '',
-        val('med_other')   ? `Other: ${val('med_other')}` : '',
-      ].filter(Boolean).join('\n  ') || '—';
+      return {
+        timestamp: new Date().toLocaleString(undefined, {
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: 'numeric', minute: '2-digit'
+        }),
+        location:       radio('location')       || '—',
+        cause:          val('cause')            || '—',
+        age:            val('age')              ? val('age').replace(' yrs','') + ' years' : '—',
+        rhythm_initial: rhythmInit              || '—',
+        rhythm_recent:  rhythmRec               || '—',
+        downtime:       val('downtime')         ? val('downtime').replace(' min','') + ' minutes' : '—',
+        bystander_cpr:  radio('bystander_cpr')  || '—',
+        defibrillation: defibStr,
+        airway:         radio('airway')         || '—',
+        rosc:           roscStr,
+        vascular_access:checks('access')        || '—',
+        code_status:    radio('code_status')    || '—',
+        epi:            val('med_epi')          ? val('med_epi').replace(' dose(s)','') + ' dose(s)' : '—',
+        calcium:        val('med_calcium')      ? val('med_calcium').replace(' dose(s)','') + ' dose(s)' : '—',
+        bicarb:         val('med_bicarb')       ? val('med_bicarb').replace(' dose(s)','') + ' dose(s)' : '—',
+        amiodarone:     val('med_amio')         ? val('med_amio') + ' mg' : '—',
+        lidocaine:      val('med_lido')         ? val('med_lido') + ' mg' : '—',
+        other_meds:     val('med_other')        || '—',
+        witnessed:      radio('witnessed')      || '—',
+        notes:          val('notes')            || '—',
+      };
+    }
 
-      const ts = new Date().toLocaleString(undefined, {
-        month: 'short', day: 'numeric', year: 'numeric',
-        hour: 'numeric', minute: '2-digit'
-      });
+    // ── Build formatted plain-text report ──
+    function buildReport() {
+      const d = collectData();
+      const W = 46;
+      const row = (label, value) => {
+        const pad = W - label.length - value.length;
+        return `  ${label}${pad > 0 ? ' '.repeat(pad) : ' '}${value}`;
+      };
+      const bar = '═'.repeat(W + 4);
+      const thin = '─'.repeat(W + 4);
 
-      return `CARDIAC — EMS-to-ED Handoff Report
-Generated: ${ts}
-${'─'.repeat(40)}
+      return `${bar}
+  CARDIAC-CPR  ·  EMS-to-ED Handoff Report
+  Generated: ${d.timestamp}
+${bar}
 
-LOCATION OF ARREST: ${radio('location')}
+  LOCATION OF ARREST: ${d.location}
 
-C — CAUSE (if known): ${val('cause') || '—'}
+${thin}
+  C — CAUSE (if known)
+${thin}
+${row('Cause:', d.cause)}
 
-A — AGE: ${val('age') ? val('age') + ' years' : '—'}
+${thin}
+  A — AGE
+${thin}
+${row('Age:', d.age)}
 
-R — RHYTHM
-  Initial:       ${rhythmInit}
-  Most Recent:   ${rhythmRec}
+${thin}
+  R — RHYTHM
+${thin}
+${row('Initial rhythm:', d.rhythm_initial)}
+${row('Most recent rhythm:', d.rhythm_recent)}
 
-D — DOWNTIME: ${val('downtime') ? val('downtime') + ' minutes' : '—'}
+${thin}
+  D — DOWNTIME
+${thin}
+${row('Estimated downtime:', d.downtime)}
 
-I — INTERVENTIONS
-  Bystander CPR:         ${radio('bystander_cpr')}
-  Defibrillation:        ${defibStr}
+${thin}
+  I — INTERVENTIONS
+${thin}
+${row('Bystander CPR:', d.bystander_cpr)}
+${row('Defibrillation:', d.defibrillation)}
 
-A — AIRWAY: ${radio('airway')}
+${thin}
+  A — AIRWAY
+${thin}
+${row('Airway type:', d.airway)}
 
-C — CIRCULATION
-  ROSC:                  ${roscStr}
-  Vascular Access:       ${checks('access')}
+${thin}
+  C — CIRCULATION
+${thin}
+${row('ROSC:', d.rosc)}
+${row('Vascular access:', d.vascular_access)}
 
-─── ADDITIONAL ───────────────────────
+${thin}
+  C — CODE STATUS
+${thin}
+${row('Code status:', d.code_status)}
 
-C — CODE STATUS: ${radio('code_status')}
+${thin}
+  P — PRE-HOSPITAL MEDICATIONS
+${thin}
+${row('Epinephrine:', d.epi)}
+${row('Calcium:', d.calcium)}
+${row('Bicarbonate:', d.bicarb)}
+${row('Amiodarone:', d.amiodarone)}
+${row('Lidocaine:', d.lidocaine)}
+${row('Other:', d.other_meds)}
 
-P — PRE-HOSPITAL MEDICATIONS
-  ${medLines}
+${thin}
+  R — REPORT
+${thin}
+${row('Witnessed arrest:', d.witnessed)}
+  Notes: ${d.notes}
 
-R — REPORT
-  Witnessed Arrest:      ${radio('witnessed')}
-  Notes: ${val('notes') || '—'}
-
-${'─'.repeat(40)}
-⚠️  FOR EDUCATIONAL USE ONLY — NOT MEDICAL ADVICE
-Methodology: https://pubmed.ncbi.nlm.nih.gov/40084268/`;
+${bar}
+  ⚠ FOR EDUCATIONAL USE ONLY — NOT MEDICAL ADVICE
+  Ref: https://pubmed.ncbi.nlm.nih.gov/40084268/
+${bar}`;
     }
 
     // ── Email report ──
     function emailReport() {
-      const subject = encodeURIComponent('CARDIAC Handoff Report — ' + new Date().toLocaleString(undefined, {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+      const d = collectData();
+      const subject = encodeURIComponent(`CARDIAC-CPR Handoff — ${d.timestamp}`);
       const body = encodeURIComponent(buildReport());
       window.location.href = `mailto:?subject=${subject}&body=${body}`;
     }
 
+    // ── Download CSV ──
+    function downloadCSV() {
+      const d = collectData();
+      const rows = [
+        ['Field', 'Value'],
+        ['Timestamp', d.timestamp],
+        ['Location of Arrest', d.location],
+        ['C - Cause', d.cause],
+        ['A - Age', d.age],
+        ['R - Initial Rhythm', d.rhythm_initial],
+        ['R - Most Recent Rhythm', d.rhythm_recent],
+        ['D - Downtime', d.downtime],
+        ['I - Bystander CPR', d.bystander_cpr],
+        ['I - Defibrillation', d.defibrillation],
+        ['A - Airway Type', d.airway],
+        ['C - ROSC', d.rosc],
+        ['C - Vascular Access', d.vascular_access],
+        ['C - Code Status', d.code_status],
+        ['P - Epinephrine', d.epi],
+        ['P - Calcium', d.calcium],
+        ['P - Bicarbonate', d.bicarb],
+        ['P - Amiodarone', d.amiodarone],
+        ['P - Lidocaine', d.lidocaine],
+        ['P - Other Medications', d.other_meds],
+        ['R - Witnessed Arrest', d.witnessed],
+        ['R - Notes', d.notes],
+      ];
+      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CARDIAC-CPR_${new Date().toISOString().slice(0,16).replace('T','_').replace(':','-')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('✓ CSV downloaded');
+    }
+
     // ── Copy to clipboard ──
     function copyToClipboard() {
-      navigator.clipboard.writeText(buildReport()).then(() => {
-        const t = document.getElementById('toast');
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2000);
-      });
+      navigator.clipboard.writeText(buildReport()).then(() => showToast('✓ Copied to clipboard'));
+    }
+
+    // ── Toast helper ──
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
     }
 
     // ── Reset form ──
     function resetForm() {
       if (!confirm('Clear all fields and start over?')) return;
       document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
-      document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
       document.getElementById('defib_count_wrap').style.display = 'none';
       document.getElementById('rosc_details_wrap').style.display = 'none';
       document.getElementById('rhythm_initial_other_wrap').style.display = 'none';
