@@ -378,7 +378,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
         Reset
       </button>
-      <button class="btn btn-primary" onclick="emailReport()">
+      <button class="btn btn-primary" onclick="openEJSModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Email Report
       </button>
@@ -610,13 +610,13 @@
 
     <!-- Action Buttons -->
     <div class="action-row">
-      <button class="btn btn-primary" onclick="emailReport()" style="flex:1; justify-content:center; padding:14px;">
+      <button class="btn btn-primary" onclick="openEJSModal()" style="flex:1; justify-content:center; padding:14px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Email (Local Client)
+        Email Report
       </button>
-      <button class="btn btn-primary" onclick="openEJSModal()" style="flex:1; justify-content:center; padding:14px; background:#1f6feb;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        Send Direct Email
+      <button class="btn btn-secondary" onclick="copyToClipboard()" style="flex:1; justify-content:center; padding:14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Text
       </button>
       <button class="btn btn-secondary" onclick="downloadCSV()" style="flex:1; justify-content:center; padding:14px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -639,7 +639,9 @@
     <div class="footer-disclaimer">
       <strong style="color:var(--accent2);">⚠️ Disclaimer — Please Read</strong><br/><br/>
       This tool is intended <strong>solely for educational and training purposes</strong>. It does not constitute medical advice, clinical guidance, or a substitute for professional judgment. The creators, contributors, and any affiliated institutions assume <strong>no liability</strong> whatsoever for patient outcomes, clinical decisions, or any use of this tool in any setting. All resuscitation decisions must be made by qualified, licensed medical professionals in accordance with local protocols, applicable laws, and current evidence-based guidelines.<br/><br/>
-      This tool is not a medical device and has not been reviewed or approved by any regulatory authority (including the FDA, CE, or equivalent). Use of this tool does not imply endorsement by any institution or health system. <strong>Do not rely on this tool for direct patient care.</strong>
+      This tool is not a medical device and has not been reviewed or approved by any regulatory authority (including the FDA, CE, or equivalent). Use of this tool does not imply endorsement by any institution or health system. <strong>Do not rely on this tool for direct patient care.</strong><br/><br/>
+      <strong style="color:var(--accent2);">Data Collection Notice:</strong> Data entered into this tool may be retained for quality improvement purposes and may be used for research in the future. By using this tool, you acknowledge and consent to this potential use of submitted data.<br/><br/>
+      <strong>Please do not enter direct patient identifiers</strong> — including patient name, date of birth, medical record number, or any other information that could directly identify an individual. If such information is inadvertently submitted, we will make reasonable efforts to identify and remove it; however, we cannot guarantee its complete deletion. Use only de-identified or aggregate clinical information when completing this form.
     </div>
     <p>
       <strong style="color:var(--text);">Methodology &amp; Citation:</strong><br/>
@@ -655,18 +657,18 @@
     </p>
     <p style="margin-top:12px;">
       <strong style="color:var(--text);">Contact:</strong>
-      <a href="mailto:CPRHandoff@proton.me" style="color:#79c0ff; font-weight:600;">CPRHandoff@proton.me</a>
+      <a href="/cdn-cgi/l/email-protection#347764667c555a505b52527444465b405b5a1a5951" style="color:#79c0ff; font-weight:600;"><span class="__cf_email__" data-cfemail="cf8c9f9d87aea1aba0a9a98fbfbda0bba0a1e1a2aa">[email&#160;protected]</span></a>
     </p>
   </footer>
 
   <div id="toast">✓ Copied to clipboard</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
     // ── EmailJS config — replace these three values after setup ──
-    const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
-    const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
-    const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+    const EMAILJS_PUBLIC_KEY  = 'tClIpq1KK_kuKLq89';
+    const EMAILJS_SERVICE_ID  = 'service_kqw4qdn';
+    const EMAILJS_TEMPLATE_ID = 'template_lmrl9tb';
     // ── Populate wheel-friendly select elements ──
     function makeSelect(id, min, max, unit, blankLabel) {
       const sel = document.getElementById(id);
@@ -865,10 +867,6 @@ ${bar}`;
 
     // ── EmailJS modal ──
     function openEJSModal() {
-      if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
-        alert('EmailJS is not configured yet.\n\nSee the setup instructions at the bottom of the page, then add your Public Key, Service ID, and Template ID to the top of the script.');
-        return;
-      }
       document.getElementById('ejs-to-email').value = '';
       document.getElementById('ejs-status').textContent = '';
       const modal = document.getElementById('ejs-modal');
@@ -916,14 +914,6 @@ ${bar}`;
         status.style.color = '#e63946';
         status.textContent = `Send failed: ${err?.text || err?.message || 'unknown error'}`;
       }
-    }
-
-    // ── Email report (local client) ──
-    function emailReport() {
-      const d = collectData();
-      const subject = encodeURIComponent(`CARDIAC-CPR Handoff — ${d.timestamp}`);
-      const body = encodeURIComponent(buildReport());
-      window.location.href = `mailto:?subject=${subject}&body=${body}`;
     }
 
     // ── Download CSV ──
@@ -1003,10 +993,4 @@ ${bar}`;
       <div id="ejs-status" style="font-size:0.8rem; min-height:20px; margin-bottom:12px; color:#f4a261;"></div>
       <div style="display:flex; gap:10px;">
         <button onclick="sendViaEmailJS()" style="flex:1; background:#e63946; color:#fff; border:none; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Send</button>
-        <button onclick="closeEJSModal()" style="flex:1; background:#21262d; color:#e6edf3; border:1px solid #30363d; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-</body>
-</html>
+        <button onclick=
