@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>CARDIAC-CPR — EMS-ED Handoff Tool</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CARDIAC-CPR" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="icon" type="image/png" href="icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -388,6 +396,21 @@
   <!-- Disclaimer Banner -->
   <div class="disclaimer-banner">
     <strong>⚠️ EDUCATIONAL USE ONLY</strong> — This tool is not medical advice and does not constitute clinical guidance. See full disclaimer below.
+  </div>
+
+  <!-- Install Banner -->
+  <div id="install-banner" style="display:none; background:#161b22; border-bottom:1px solid #30363d; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <img src="icon.png" width="36" height="36" style="border-radius:8px;" alt="CARDIAC-CPR icon"/>
+      <div>
+        <div style="font-size:0.85rem; font-weight:600; color:#e6edf3;">Add to Home Screen</div>
+        <div style="font-size:0.72rem; color:#cdd5de;">Install for quick one-tap access in the field</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button onclick="installApp()" style="background:#e63946; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:0.82rem; font-weight:600; cursor:pointer;">Install</button>
+      <button onclick="document.getElementById('install-banner').style.display='none'" style="background:#21262d; color:#cdd5de; border:1px solid #30363d; border-radius:8px; padding:8px 12px; font-size:0.82rem; cursor:pointer;">✕</button>
+    </div>
   </div>
 
   <!-- Main -->
@@ -919,32 +942,36 @@ ${bar}`;
     // ── Download CSV ──
     function downloadCSV() {
       const d = collectData();
+      // Strip em-dashes for CSV — replace with empty string so Excel doesn't mangle them
+      const clean = (v) => (v === '—' || v === undefined) ? '' : v;
       const rows = [
         ['Field', 'Value'],
-        ['Timestamp', d.timestamp],
-        ['Location of Arrest', d.location],
-        ['C - Cause', d.cause],
-        ['A - Age', d.age],
-        ['R - Initial Rhythm', d.rhythm_initial],
-        ['R - Most Recent Rhythm', d.rhythm_recent],
-        ['D - Downtime', d.downtime],
-        ['I - Bystander CPR', d.bystander_cpr],
-        ['I - Defibrillation', d.defibrillation],
-        ['A - Airway Type', d.airway],
-        ['C - ROSC', d.rosc],
-        ['C - Vascular Access', d.vascular_access],
-        ['C - Code Status', d.code_status],
-        ['P - Epinephrine', d.epi],
-        ['P - Calcium', d.calcium],
-        ['P - Bicarbonate', d.bicarb],
-        ['P - Amiodarone', d.amiodarone],
-        ['P - Lidocaine', d.lidocaine],
-        ['P - Other Medications', d.other_meds],
-        ['R - Witnessed Arrest', d.witnessed],
-        ['R - Notes', d.notes],
+        ['Timestamp', clean(d.timestamp)],
+        ['Location of Arrest', clean(d.location)],
+        ['C - Cause', clean(d.cause)],
+        ['A - Age', clean(d.age)],
+        ['R - Initial Rhythm', clean(d.rhythm_initial)],
+        ['R - Most Recent Rhythm', clean(d.rhythm_recent)],
+        ['D - Downtime', clean(d.downtime)],
+        ['I - Bystander CPR', clean(d.bystander_cpr)],
+        ['I - Defibrillation', clean(d.defibrillation)],
+        ['A - Airway Type', clean(d.airway)],
+        ['C - ROSC', clean(d.rosc)],
+        ['C - Vascular Access', clean(d.vascular_access)],
+        ['C - Code Status', clean(d.code_status)],
+        ['P - Epinephrine', clean(d.epi)],
+        ['P - Calcium', clean(d.calcium)],
+        ['P - Bicarbonate', clean(d.bicarb)],
+        ['P - Amiodarone', clean(d.amiodarone)],
+        ['P - Lidocaine', clean(d.lidocaine)],
+        ['P - Other Medications', clean(d.other_meds)],
+        ['R - Witnessed Arrest', clean(d.witnessed)],
+        ['R - Notes', clean(d.notes)],
       ];
-      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
+      // UTF-8 BOM ensures Excel opens without encoding issues
+      const BOM = '\uFEFF';
+      const csv = BOM + rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -981,6 +1008,25 @@ ${bar}`;
       document.getElementById('rhythm_recent_other_wrap').style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    // ── PWA Install prompt ──
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      document.getElementById('install-banner').style.display = 'flex';
+    });
+    function installApp() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(() => {
+          deferredInstallPrompt = null;
+          document.getElementById('install-banner').style.display = 'none';
+        });
+      }
+    }
+    window.addEventListener('appinstalled', () => {
+      document.getElementById('install-banner').style.display = 'none';
+    });
   </script>
   <!-- EmailJS Send Modal -->
   <div id="ejs-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; padding:20px;">
