@@ -10,8 +10,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CARDIAC-CPR" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -658,6 +661,57 @@
   </main>
 
   <!-- Footer -->
+  <!-- Feedback Section -->
+  <div style="max-width:780px; margin:0 auto; padding:0 16px 16px;">
+    <div style="background:linear-gradient(135deg,#1a1f2e,#1c1207); border:1.5px solid #f4a261; border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+      <div>
+        <div style="font-size:1rem; font-weight:700; color:#f4a261; margin-bottom:4px;">🐛 Noticed a bug? Have a suggestion?</div>
+        <div style="font-size:0.82rem; color:#cdd5de; line-height:1.5;">Help us improve this tool for clinicians worldwide — your feedback matters.</div>
+      </div>
+      <button onclick="openFeedbackModal()" style="background:#f4a261; color:#111; border:none; border-radius:8px; padding:11px 22px; font-size:0.9rem; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0;">Send Feedback</button>
+    </div>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="feedback-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:300; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:26px; max-width:460px; width:100%;">
+      <h3 style="font-family:'Space Mono',monospace; color:#f4a261; margin-bottom:6px; font-size:1rem;">Feedback &amp; Bug Reports</h3>
+      <p style="font-size:0.78rem; color:#cdd5de; margin-bottom:16px; line-height:1.5;">Found a bug, have a feature idea, or want to suggest a clinical improvement? We read every message.</p>
+
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Type</label>
+      <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+        <label style="cursor:pointer;">
+          <input type="radio" name="fb_type" value="Bug" style="display:none;" />
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">🐛 Bug</span>
+        </label>
+        <label style="cursor:pointer;">
+          <input type="radio" name="fb_type" value="Suggestion" style="display:none;" />
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">💡 Suggestion</span>
+        </label>
+        <label style="cursor:pointer;">
+          <input type="radio" name="fb_type" value="Clinical" style="display:none;" />
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">🏥 Clinical</span>
+        </label>
+        <label style="cursor:pointer;">
+          <input type="radio" name="fb_type" value="Other" style="display:none;" />
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">📝 Other</span>
+        </label>
+      </div>
+
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Your message</label>
+      <textarea id="fb-message" placeholder="Describe the bug or suggestion in as much detail as you'd like…" style="width:100%; background:#0d1117; border:1px solid #30363d; border-radius:8px; color:#e6edf3; font-family:'DM Sans',sans-serif; font-size:0.95rem; padding:10px 14px; outline:none; resize:vertical; min-height:100px; margin-bottom:12px;"></textarea>
+
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Your email <span style="color:#8b949e; font-weight:400; text-transform:none;">(optional — only if you'd like a reply)</span></label>
+      <input type="email" id="fb-email" placeholder="you@example.com" style="width:100%; background:#0d1117; border:1px solid #30363d; border-radius:8px; color:#e6edf3; font-size:0.95rem; padding:10px 14px; outline:none; margin-bottom:14px;" />
+
+      <div id="fb-status" style="font-size:0.8rem; min-height:18px; margin-bottom:10px; color:#f4a261;"></div>
+      <div style="display:flex; gap:10px;">
+        <button onclick="sendFeedback()" style="flex:1; background:#f4a261; color:#111; border:none; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:700; cursor:pointer;">Send</button>
+        <button onclick="closeFeedbackModal()" style="flex:1; background:#21262d; color:#e6edf3; border:1px solid #30363d; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <div class="footer-disclaimer">
       <strong style="color:var(--accent2);">⚠️ Disclaimer — Please Read</strong><br/><br/>
@@ -674,13 +728,12 @@
       </a>
     </p>
     <p style="margin-top:10px;">Also see: <a href="https://pubmed.ncbi.nlm.nih.gov/37196800/" target="_blank" rel="noopener noreferrer">PubMed 37196800 ↗</a></p>
-    <p style="margin-top:12px; color:#4a5568;">
-      Open-source educational tool. No patient data is collected or transmitted by this page.
-      Email function uses your local mail client only.
+    <p style="margin-top:12px; color:#8b949e;">
+      Open-source educational tool. Data submitted may be retained for quality improvement and research purposes.
     </p>
     <p style="margin-top:12px;">
       <strong style="color:var(--text);">Contact:</strong>
-      <a href="/cdn-cgi/l/email-protection#347764667c555a505b52527444465b405b5a1a5951" style="color:#79c0ff; font-weight:600;"><span class="__cf_email__" data-cfemail="cf8c9f9d87aea1aba0a9a98fbfbda0bba0a1e1a2aa">[email&#160;protected]</span></a>
+      <span id="contact-link" style="color:#79c0ff; font-weight:600; cursor:pointer;"></span>
     </p>
   </footer>
 
@@ -1008,6 +1061,80 @@ ${bar}`;
       document.getElementById('rhythm_recent_other_wrap').style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    // ── Construct contact email via JS to defeat Cloudflare obfuscation ──
+    (function() {
+      const u = 'CPRHandoff', d = 'proton' + '.me';
+      const el = document.getElementById('contact-link');
+      if (el) {
+        el.textContent = u + '@' + d;
+        el.onclick = () => { window.location.href = 'mailto:' + u + '@' + d; };
+      }
+    })();
+
+    // ── Feedback type button highlight ──
+    document.addEventListener('change', function(e) {
+      if (e.target.name === 'fb_type') {
+        document.querySelectorAll('.fb-type-btn').forEach(b => {
+          b.style.borderColor = '#30363d';
+          b.style.background  = '#21262d';
+          b.style.color       = '#e6edf3';
+        });
+        const selected = e.target.nextElementSibling;
+        selected.style.borderColor = '#f4a261';
+        selected.style.background  = 'rgba(244,162,97,0.15)';
+        selected.style.color       = '#f4a261';
+      }
+    });
+
+    // ── Feedback modal ──
+    function openFeedbackModal() {
+      document.getElementById('fb-message').value = '';
+      document.getElementById('fb-email').value   = '';
+      document.getElementById('fb-status').textContent = '';
+      document.querySelectorAll('input[name="fb_type"]').forEach(r => r.checked = false);
+      document.querySelectorAll('.fb-type-btn').forEach(b => {
+        b.style.borderColor = '#30363d';
+        b.style.background  = '#21262d';
+        b.style.color       = '#e6edf3';
+      });
+      document.getElementById('feedback-modal').style.display = 'flex';
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedback-modal').style.display = 'none';
+    }
+
+    async function sendFeedback() {
+      const type    = (document.querySelector('input[name="fb_type"]:checked')?.value) || 'General';
+      const message = document.getElementById('fb-message').value.trim();
+      const replyTo = document.getElementById('fb-email').value.trim();
+      const status  = document.getElementById('fb-status');
+
+      if (!message) {
+        status.style.color   = '#e63946';
+        status.textContent   = 'Please enter a message before sending.';
+        return;
+      }
+      status.style.color   = '#f4a261';
+      status.textContent   = 'Sending…';
+
+      const u = 'CPRHandoff', d = 'proton' + '.me';
+      try {
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email: u + '@' + d,
+          subject:  `CARDIAC-CPR Feedback [${type}]`,
+          report:   `FEEDBACK TYPE: ${type}\n\nMESSAGE:\n${message}\n\nREPLY TO: ${replyTo || 'Not provided'}`,
+        });
+        status.style.color = '#3fb950';
+        status.textContent = '✓ Feedback sent — thank you!';
+        setTimeout(closeFeedbackModal, 2000);
+      } catch(err) {
+        status.style.color = '#e63946';
+        status.textContent = `Send failed: ${err?.text || err?.message || 'unknown error'}`;
+      }
+    }
+
     // ── PWA Install prompt ──
     let deferredInstallPrompt = null;
 
