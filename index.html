@@ -399,16 +399,16 @@
   </div>
 
   <!-- Install Banner -->
-  <div id="install-banner" style="display:none; background:#161b22; border-bottom:1px solid #30363d; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+  <div id="install-banner" style="display:none; background:#161b22; border-bottom:1px solid #30363d; padding:10px 20px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
     <div style="display:flex; align-items:center; gap:10px;">
       <img src="icon.png" width="36" height="36" style="border-radius:8px;" alt="CARDIAC-CPR icon"/>
       <div>
-        <div style="font-size:0.85rem; font-weight:600; color:#e6edf3;">Add to Home Screen</div>
-        <div style="font-size:0.72rem; color:#cdd5de;">Install for quick one-tap access in the field</div>
+        <div id="install-title" style="font-size:0.85rem; font-weight:600; color:#e6edf3;">Add to Home Screen</div>
+        <div id="install-subtitle" style="font-size:0.72rem; color:#cdd5de;">Install for quick one-tap access in the field</div>
       </div>
     </div>
-    <div style="display:flex; gap:8px;">
-      <button onclick="installApp()" style="background:#e63946; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:0.82rem; font-weight:600; cursor:pointer;">Install</button>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button id="install-btn" onclick="installApp()" style="background:#e63946; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:0.82rem; font-weight:600; cursor:pointer;">Install</button>
       <button onclick="document.getElementById('install-banner').style.display='none'" style="background:#21262d; color:#cdd5de; border:1px solid #30363d; border-radius:8px; padding:8px 12px; font-size:0.82rem; cursor:pointer;">✕</button>
     </div>
   </div>
@@ -1010,11 +1010,32 @@ ${bar}`;
     }
     // ── PWA Install prompt ──
     let deferredInstallPrompt = null;
+
+    // Detect iOS
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isInStandaloneMode = ('standalone' in navigator) && navigator.standalone;
+
+    // iOS: show manual instructions banner (no beforeinstallprompt on Safari)
+    if (isIOS && !isInStandaloneMode) {
+      const banner = document.getElementById('install-banner');
+      document.getElementById('install-title').textContent = 'Add to Home Screen';
+      document.getElementById('install-subtitle').textContent = 'Tap the Share button ↑ then "Add to Home Screen"';
+      document.getElementById('install-btn').textContent = 'How?';
+      document.getElementById('install-btn').onclick = () => {
+        alert('On iPhone/iPad:\n1. Tap the Share button (box with arrow) at the bottom of Safari\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" — the app icon will appear on your home screen');
+      };
+      banner.style.display = 'flex';
+    }
+
+    // Android/Chrome: use native install prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredInstallPrompt = e;
+      document.getElementById('install-btn').textContent = 'Install';
+      document.getElementById('install-btn').onclick = installApp;
       document.getElementById('install-banner').style.display = 'flex';
     });
+
     function installApp() {
       if (deferredInstallPrompt) {
         deferredInstallPrompt.prompt();
@@ -1024,9 +1045,15 @@ ${bar}`;
         });
       }
     }
+
     window.addEventListener('appinstalled', () => {
       document.getElementById('install-banner').style.display = 'none';
     });
+
+    // ── Register service worker (required for PWA install on Android) ──
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
   </script>
   <!-- EmailJS Send Modal -->
   <div id="ejs-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; padding:20px;">
