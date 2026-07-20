@@ -4,8 +4,8 @@
   "description": "EMS-to-ED cardiac arrest handoff communication tool based on the CARDIAC-CPR mnemonic.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait-primary",
   "icons": [
     {
