@@ -1,4 +1,4 @@
-const CACHE = 'cardiac-cpr-v1';
+const CACHE = 'cardiac-cpr-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.png'];
 
 self.addEventListener('install', e => {
