@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>CARDIAC-CPR — EMS-ED Handoff Tool</title>
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0d1117" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -21,15 +21,17 @@
 
   <style>
     :root {
-      --bg:        #0d1117;
-      --surface:   #161b22;
-      --border:    #30363d;
-      --accent:    #e63946;
-      --accent2:   #f4a261;
-      --text:      #e6edf3;
-      --muted:     #cdd5de;
-      --pill-bg:   #21262d;
-      --check-on:  #238636;
+      --bg:        #ffffff;
+      --surface:   #f6f8fa;
+      --border:    #d0d7de;
+      --accent:    #b91c1c;
+      --accent2:   #0f766e;
+      --warn:      #b45309;
+      --warn-solid:#f59e0b;
+      --text:      #0f172a;
+      --muted:     #57606a;
+      --pill-bg:   #eef1f4;
+      --check-on:  #15803d;
       --mono:      'Space Mono', monospace;
       --sans:      'DM Sans', sans-serif;
       --radius:    10px;
@@ -99,11 +101,11 @@
 
     /* ── Disclaimer Banner ── */
     .disclaimer-banner {
-      background: #1c1207;
-      border-bottom: 1px solid #5a3e1b;
+      background: #fff7ed;
+      border-bottom: 1px solid #fbd38d;
       padding: 10px 20px;
       font-size: 0.75rem;
-      color: var(--accent2);
+      color: var(--warn);
       text-align: center;
       line-height: 1.5;
     }
@@ -146,7 +148,7 @@
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #e6edf3;
+      color: #0f172a;
     }
 
     /* ── Card ── */
@@ -164,7 +166,7 @@
       font-size: 0.72rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #e6edf3;
+      color: #0f172a;
       margin-bottom: 6px;
       font-weight: 600;
     }
@@ -186,7 +188,7 @@
     }
     input:focus, textarea:focus, select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(230,57,70,0.18);
+      box-shadow: 0 0 0 3px rgba(185,28,28,0.15);
     }
     select option { background: var(--bg); }
     textarea { resize: vertical; min-height: 72px; }
@@ -224,12 +226,15 @@
     }
     .opt-btn input:checked + .opt-label {
       border-color: var(--accent);
-      background: rgba(230,57,70,0.12);
-      color: #fff;
+      background: rgba(185,28,28,0.08);
+      color: var(--accent);
+      font-weight: 700;
     }
     .opt-btn input[type="checkbox"]:checked + .opt-label {
       border-color: var(--check-on);
-      background: rgba(35,134,54,0.15);
+      background: rgba(21,128,61,0.10);
+      color: var(--check-on);
+      font-weight: 700;
     }
     .opt-btn .opt-label::before {
       content: '';
@@ -268,7 +273,7 @@
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: #e6edf3;
+      color: #0f172a;
       font-weight: 600;
       flex-shrink: 0;
     }
@@ -278,7 +283,7 @@
       font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: #e6edf3;
+      color: #0f172a;
       font-weight: 600;
       margin: 14px 0 6px;
     }
@@ -364,7 +369,7 @@
     /* ── Witnessed badge ── */
     .witnessed-badge {
       display: inline-block;
-      background: rgba(244,162,97,0.15);
+      background: rgba(15,118,110,0.10);
       border: 1px solid var(--accent2);
       border-radius: 999px;
       padding: 3px 12px;
@@ -385,6 +390,10 @@
       <div class="subtitle">EMS → ED Handoff Communication Tool</div>
     </div>
     <div class="header-actions">
+      <button class="btn btn-secondary" id="header-install-btn" onclick="triggerInstall()" style="display:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
+        Install App
+      </button>
       <button class="btn btn-secondary" onclick="resetForm()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
         Reset
@@ -402,17 +411,17 @@
   </div>
 
   <!-- Install Banner -->
-  <div id="install-banner" style="display:none; background:#161b22; border-bottom:1px solid #30363d; padding:10px 20px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+  <div id="install-banner" style="display:none; background:#f6f8fa; border-bottom:1px solid #d0d7de; padding:10px 20px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
     <div style="display:flex; align-items:center; gap:10px;">
       <img src="icon.png" width="36" height="36" style="border-radius:8px;" alt="CARDIAC-CPR icon"/>
       <div>
-        <div id="install-title" style="font-size:0.85rem; font-weight:600; color:#e6edf3;">Add to Home Screen</div>
-        <div id="install-subtitle" style="font-size:0.72rem; color:#cdd5de;">Install for quick one-tap access in the field</div>
+        <div id="install-title" style="font-size:0.85rem; font-weight:600; color:#0f172a;">Add to Home Screen</div>
+        <div id="install-subtitle" style="font-size:0.72rem; color:#57606a;">Install for quick one-tap access in the field</div>
       </div>
     </div>
     <div style="display:flex; gap:8px; align-items:center;">
-      <button id="install-btn" onclick="installApp()" style="background:#e63946; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:0.82rem; font-weight:600; cursor:pointer;">Install</button>
-      <button onclick="document.getElementById('install-banner').style.display='none'" style="background:#21262d; color:#cdd5de; border:1px solid #30363d; border-radius:8px; padding:8px 12px; font-size:0.82rem; cursor:pointer;">✕</button>
+      <button id="install-btn" onclick="installApp()" style="background:#b91c1c; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:0.82rem; font-weight:600; cursor:pointer;">Install</button>
+      <button onclick="document.getElementById('install-banner').style.display='none'" style="background:#eef1f4; color:#57606a; border:1px solid #d0d7de; border-radius:8px; padding:8px 12px; font-size:0.82rem; cursor:pointer;">✕</button>
     </div>
   </div>
 
@@ -563,7 +572,7 @@
 
     <!-- C: Code Status -->
     <div class="section-pill">
-      <span class="letter" style="background:var(--accent2);color:#111;">C</span><span class="label">Code Status</span>
+      <span class="letter" style="background:var(--accent2);color:#fff;">C</span><span class="label">Code Status</span>
     </div>
     <div class="card">
       <div class="option-grid">
@@ -575,7 +584,7 @@
 
     <!-- P: Pre-Hospital Medications -->
     <div class="section-pill">
-      <span class="letter" style="background:var(--accent2);color:#111;">P</span><span class="label">Pre-Hospital Medications</span>
+      <span class="letter" style="background:var(--accent2);color:#fff;">P</span><span class="label">Pre-Hospital Medications</span>
     </div>
     <div class="card">
       <div class="med-grid">
@@ -619,7 +628,7 @@
 
     <!-- R: Report / Witnessed -->
     <div class="section-pill">
-      <span class="letter" style="background:var(--accent2);color:#111;">R</span><span class="label">Report</span>
+      <span class="letter" style="background:var(--accent2);color:#fff;">R</span><span class="label">Report</span>
     </div>
     <div class="card">
       <div class="sub-label">Witnessed Arrest?</div>
@@ -648,10 +657,6 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Report (CSV)
       </button>
-      <button class="btn btn-secondary" onclick="copyToClipboard()" style="flex:1; justify-content:center; padding:14px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copy Text
-      </button>
       <button class="btn btn-ghost" onclick="resetForm()" style="padding:14px 18px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
         Reset
@@ -663,61 +668,73 @@
   <!-- Footer -->
   <!-- Feedback Section -->
   <div style="max-width:780px; margin:0 auto; padding:0 16px 16px;">
-    <div style="background:linear-gradient(135deg,#1a1f2e,#1c1207); border:1.5px solid #f4a261; border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+    <div style="background:linear-gradient(135deg,#fff7ed,#fef3e2); border:1.5px solid var(--warn-solid); border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
       <div>
-        <div style="font-size:1rem; font-weight:700; color:#f4a261; margin-bottom:4px;">🐛 Noticed a bug? Have a suggestion?</div>
-        <div style="font-size:0.82rem; color:#cdd5de; line-height:1.5;">Help us improve this tool for clinicians worldwide — your feedback matters.</div>
+        <div style="font-size:1rem; font-weight:700; color:var(--warn); margin-bottom:4px;">🐛 Noticed a bug? Have a suggestion?</div>
+        <div style="font-size:0.82rem; color:#7c5a2e; line-height:1.5;">Help us improve this tool for clinicians worldwide — your feedback matters.</div>
       </div>
-      <button onclick="openFeedbackModal()" style="background:#f4a261; color:#111; border:none; border-radius:8px; padding:11px 22px; font-size:0.9rem; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0;">Send Feedback</button>
+      <button onclick="openFeedbackModal()" style="background:var(--warn-solid); color:#1f1300; border:none; border-radius:8px; padding:11px 22px; font-size:0.9rem; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0;">Send Feedback</button>
+    </div>
+  </div>
+
+  <!-- Install Instructions Modal -->
+  <div id="install-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:300; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#ffffff; border:1px solid #d0d7de; border-radius:12px; padding:26px; max-width:420px; width:100%; box-shadow:0 12px 32px rgba(15,23,42,0.18);">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        <img src="icon.png" width="40" height="40" style="border-radius:9px;" alt="CARDIAC-CPR icon"/>
+        <h3 style="font-family:'Space Mono',monospace; color:#b91c1c; font-size:1rem;">Install CARDIAC-CPR</h3>
+      </div>
+      <div id="install-instructions" style="font-size:0.85rem; color:#0f172a; line-height:1.7;"></div>
+      <button onclick="closeInstallModal()" style="width:100%; margin-top:18px; background:#eef1f4; color:#0f172a; border:1px solid #d0d7de; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Got it</button>
     </div>
   </div>
 
   <!-- Feedback Modal -->
-  <div id="feedback-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:300; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:26px; max-width:460px; width:100%;">
-      <h3 style="font-family:'Space Mono',monospace; color:#f4a261; margin-bottom:6px; font-size:1rem;">Feedback &amp; Bug Reports</h3>
-      <p style="font-size:0.78rem; color:#cdd5de; margin-bottom:16px; line-height:1.5;">Found a bug, have a feature idea, or want to suggest a clinical improvement? We read every message.</p>
+  <div id="feedback-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:300; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#ffffff; border:1px solid #d0d7de; border-radius:12px; padding:26px; max-width:460px; width:100%; box-shadow:0 12px 32px rgba(15,23,42,0.18);">
+      <h3 style="font-family:'Space Mono',monospace; color:#b45309; margin-bottom:6px; font-size:1rem;">Feedback &amp; Bug Reports</h3>
+      <p style="font-size:0.78rem; color:#57606a; margin-bottom:16px; line-height:1.5;">Found a bug, have a feature idea, or want to suggest a clinical improvement? We read every message.</p>
 
-      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Type</label>
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#0f172a; font-weight:600; margin-bottom:6px;">Type</label>
       <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
         <label style="cursor:pointer;">
           <input type="radio" name="fb_type" value="Bug" style="display:none;" />
-          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">🐛 Bug</span>
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #d0d7de; background:#eef1f4; color:#0f172a; font-size:0.85rem; font-weight:500; transition:all 0.12s;">🐛 Bug</span>
         </label>
         <label style="cursor:pointer;">
           <input type="radio" name="fb_type" value="Suggestion" style="display:none;" />
-          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">💡 Suggestion</span>
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #d0d7de; background:#eef1f4; color:#0f172a; font-size:0.85rem; font-weight:500; transition:all 0.12s;">💡 Suggestion</span>
         </label>
         <label style="cursor:pointer;">
           <input type="radio" name="fb_type" value="Clinical" style="display:none;" />
-          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">🏥 Clinical</span>
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #d0d7de; background:#eef1f4; color:#0f172a; font-size:0.85rem; font-weight:500; transition:all 0.12s;">🏥 Clinical</span>
         </label>
         <label style="cursor:pointer;">
           <input type="radio" name="fb_type" value="Other" style="display:none;" />
-          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #30363d; background:#21262d; color:#e6edf3; font-size:0.85rem; font-weight:500; transition:all 0.12s;">📝 Other</span>
+          <span class="fb-type-btn" style="display:inline-block; padding:7px 14px; border-radius:8px; border:1.5px solid #d0d7de; background:#eef1f4; color:#0f172a; font-size:0.85rem; font-weight:500; transition:all 0.12s;">📝 Other</span>
         </label>
       </div>
 
-      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Your message</label>
-      <textarea id="fb-message" placeholder="Describe the bug or suggestion in as much detail as you'd like…" style="width:100%; background:#0d1117; border:1px solid #30363d; border-radius:8px; color:#e6edf3; font-family:'DM Sans',sans-serif; font-size:0.95rem; padding:10px 14px; outline:none; resize:vertical; min-height:100px; margin-bottom:12px;"></textarea>
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#0f172a; font-weight:600; margin-bottom:6px;">Your message</label>
+      <textarea id="fb-message" placeholder="Describe the bug or suggestion in as much detail as you'd like…" style="width:100%; background:#ffffff; border:1px solid #d0d7de; border-radius:8px; color:#0f172a; font-family:'DM Sans',sans-serif; font-size:0.95rem; padding:10px 14px; outline:none; resize:vertical; min-height:100px; margin-bottom:12px;"></textarea>
 
-      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Your email <span style="color:#8b949e; font-weight:400; text-transform:none;">(optional — only if you'd like a reply)</span></label>
-      <input type="email" id="fb-email" placeholder="you@example.com" style="width:100%; background:#0d1117; border:1px solid #30363d; border-radius:8px; color:#e6edf3; font-size:0.95rem; padding:10px 14px; outline:none; margin-bottom:14px;" />
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#0f172a; font-weight:600; margin-bottom:6px;">Your email <span style="color:#57606a; font-weight:400; text-transform:none;">(optional — only if you'd like a reply)</span></label>
+      <input type="email" id="fb-email" placeholder="you@example.com" style="width:100%; background:#ffffff; border:1px solid #d0d7de; border-radius:8px; color:#0f172a; font-size:0.95rem; padding:10px 14px; outline:none; margin-bottom:14px;" />
 
-      <div id="fb-status" style="font-size:0.8rem; min-height:18px; margin-bottom:10px; color:#f4a261;"></div>
+      <div id="fb-status" style="font-size:0.8rem; min-height:18px; margin-bottom:10px; color:#b45309;"></div>
       <div style="display:flex; gap:10px;">
-        <button onclick="sendFeedback()" style="flex:1; background:#f4a261; color:#111; border:none; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:700; cursor:pointer;">Send</button>
-        <button onclick="closeFeedbackModal()" style="flex:1; background:#21262d; color:#e6edf3; border:1px solid #30363d; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onclick="sendFeedback()" style="flex:1; background:#f59e0b; color:#1f1300; border:none; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:700; cursor:pointer;">Send</button>
+        <button onclick="closeFeedbackModal()" style="flex:1; background:#eef1f4; color:#0f172a; border:1px solid #d0d7de; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Cancel</button>
       </div>
     </div>
   </div>
 
   <footer>
     <div class="footer-disclaimer">
-      <strong style="color:var(--accent2);">⚠️ Disclaimer — Please Read</strong><br/><br/>
+      <strong style="color:var(--warn);">⚠️ Disclaimer — Please Read</strong><br/><br/>
       This tool is intended <strong>solely for educational and training purposes</strong>. It does not constitute medical advice, clinical guidance, or a substitute for professional judgment. The creators, contributors, and any affiliated institutions assume <strong>no liability</strong> whatsoever for patient outcomes, clinical decisions, or any use of this tool in any setting. All resuscitation decisions must be made by qualified, licensed medical professionals in accordance with local protocols, applicable laws, and current evidence-based guidelines.<br/><br/>
       This tool is not a medical device and has not been reviewed or approved by any regulatory authority (including the FDA, CE, or equivalent). Use of this tool does not imply endorsement by any institution or health system. <strong>Do not rely on this tool for direct patient care.</strong><br/><br/>
-      <strong style="color:var(--accent2);">Data Collection Notice:</strong> Data entered into this tool may be retained for quality improvement purposes and may be used for research in the future. By using this tool, you acknowledge and consent to this potential use of submitted data.<br/><br/>
+      <strong style="color:var(--warn);">Data Collection Notice:</strong> Data entered into this tool may be retained for quality improvement purposes and may be used for research in the future. By using this tool, you acknowledge and consent to this potential use of submitted data.<br/><br/>
       <strong>Please do not enter direct patient identifiers</strong> — including patient name, date of birth, medical record number, or any other information that could directly identify an individual. If such information is inadvertently submitted, we will make reasonable efforts to identify and remove it; however, we cannot guarantee its complete deletion. Use only de-identified or aggregate clinical information when completing this form.
     </div>
     <p>
@@ -728,12 +745,12 @@
       </a>
     </p>
     <p style="margin-top:10px;">Also see: <a href="https://pubmed.ncbi.nlm.nih.gov/37196800/" target="_blank" rel="noopener noreferrer">PubMed 37196800 ↗</a></p>
-    <p style="margin-top:12px; color:#8b949e;">
+    <p style="margin-top:12px; color:#57606a;">
       Open-source educational tool. Data submitted may be retained for quality improvement and research purposes.
     </p>
     <p style="margin-top:12px;">
       <strong style="color:var(--text);">Contact:</strong>
-      <span id="contact-link" style="color:#79c0ff; font-weight:600; cursor:pointer;"></span>
+      <span id="contact-link" style="color:#0f766e; font-weight:600; cursor:pointer;"></span>
     </p>
   </footer>
 
@@ -958,11 +975,11 @@ ${bar}`;
       const toEmail = document.getElementById('ejs-to-email').value.trim();
       const status  = document.getElementById('ejs-status');
       if (!toEmail || !/\S+@\S+\.\S+/.test(toEmail)) {
-        status.style.color = '#e63946';
+        status.style.color = '#b91c1c';
         status.textContent = 'Please enter a valid email address.';
         return;
       }
-      status.style.color = '#f4a261';
+      status.style.color = '#b45309';
       status.textContent = 'Sending…';
       const d = collectData();
       try {
@@ -983,11 +1000,11 @@ ${bar}`;
           lido:       d.lidocaine,     other_meds: d.other_meds,
           witnessed:  d.witnessed,     notes:      d.notes,
         });
-        status.style.color = '#3fb950';
+        status.style.color = '#15803d';
         status.textContent = '✓ Report sent successfully!';
         setTimeout(closeEJSModal, 1800);
       } catch (err) {
-        status.style.color = '#e63946';
+        status.style.color = '#b91c1c';
         status.textContent = `Send failed: ${err?.text || err?.message || 'unknown error'}`;
       }
     }
@@ -1075,14 +1092,14 @@ ${bar}`;
     document.addEventListener('change', function(e) {
       if (e.target.name === 'fb_type') {
         document.querySelectorAll('.fb-type-btn').forEach(b => {
-          b.style.borderColor = '#30363d';
-          b.style.background  = '#21262d';
-          b.style.color       = '#e6edf3';
+          b.style.borderColor = '#d0d7de';
+          b.style.background  = '#eef1f4';
+          b.style.color       = '#0f172a';
         });
         const selected = e.target.nextElementSibling;
-        selected.style.borderColor = '#f4a261';
-        selected.style.background  = 'rgba(244,162,97,0.15)';
-        selected.style.color       = '#f4a261';
+        selected.style.borderColor = '#b45309';
+        selected.style.background  = 'rgba(180,83,9,0.12)';
+        selected.style.color       = '#b45309';
       }
     });
 
@@ -1093,9 +1110,9 @@ ${bar}`;
       document.getElementById('fb-status').textContent = '';
       document.querySelectorAll('input[name="fb_type"]').forEach(r => r.checked = false);
       document.querySelectorAll('.fb-type-btn').forEach(b => {
-        b.style.borderColor = '#30363d';
-        b.style.background  = '#21262d';
-        b.style.color       = '#e6edf3';
+        b.style.borderColor = '#d0d7de';
+        b.style.background  = '#eef1f4';
+        b.style.color       = '#0f172a';
       });
       document.getElementById('feedback-modal').style.display = 'flex';
     }
@@ -1111,11 +1128,11 @@ ${bar}`;
       const status  = document.getElementById('fb-status');
 
       if (!message) {
-        status.style.color   = '#e63946';
+        status.style.color   = '#b91c1c';
         status.textContent   = 'Please enter a message before sending.';
         return;
       }
-      status.style.color   = '#f4a261';
+      status.style.color   = '#b45309';
       status.textContent   = 'Sending…';
 
       const u = 'CPRHandoff', d = 'proton' + '.me';
@@ -1126,38 +1143,44 @@ ${bar}`;
           subject:  `CARDIAC-CPR Feedback [${type}]`,
           report:   `FEEDBACK TYPE: ${type}\n\nMESSAGE:\n${message}\n\nREPLY TO: ${replyTo || 'Not provided'}`,
         });
-        status.style.color = '#3fb950';
+        status.style.color = '#15803d';
         status.textContent = '✓ Feedback sent — thank you!';
         setTimeout(closeFeedbackModal, 2000);
       } catch(err) {
-        status.style.color = '#e63946';
+        status.style.color = '#b91c1c';
         status.textContent = `Send failed: ${err?.text || err?.message || 'unknown error'}`;
       }
     }
 
-    // ── PWA Install prompt ──
+    // ── PWA Install — platform detection ──
     let deferredInstallPrompt = null;
+    const ua = navigator.userAgent.toLowerCase();
+    const isIOS      = /iphone|ipad|ipod/.test(ua);
+    const isAndroid  = /android/.test(ua);
+    const isSafari   = /safari/.test(ua) && !/chrome|crios|edg/.test(ua);
+    const isFirefox  = /firefox/.test(ua);
+    const isStandalone = (window.matchMedia('(display-mode: standalone)').matches) ||
+                          (('standalone' in navigator) && navigator.standalone);
 
-    // Detect iOS
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isInStandaloneMode = ('standalone' in navigator) && navigator.standalone;
+    const headerBtn = document.getElementById('header-install-btn');
 
-    // iOS: show manual instructions banner (no beforeinstallprompt on Safari)
-    if (isIOS && !isInStandaloneMode) {
-      const banner = document.getElementById('install-banner');
-      document.getElementById('install-title').textContent = 'Add to Home Screen';
-      document.getElementById('install-subtitle').textContent = 'Tap the Share button ↑ then "Add to Home Screen"';
-      document.getElementById('install-btn').textContent = 'How?';
-      document.getElementById('install-btn').onclick = () => {
-        alert('On iPhone/iPad:\n1. Tap the Share button (box with arrow) at the bottom of Safari\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" — the app icon will appear on your home screen');
-      };
-      banner.style.display = 'flex';
+    // Show the header Install button unless already installed
+    if (!isStandalone) {
+      headerBtn.style.display = 'inline-flex';
     }
 
-    // Android/Chrome: use native install prompt
+    window.addEventListener('appinstalled', () => {
+      headerBtn.style.display = 'none';
+      document.getElementById('install-banner').style.display = 'none';
+    });
+
+    // Chrome/Edge (Android + Desktop) fire this when installable — capture it for later
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredInstallPrompt = e;
+      // Also surface the lightweight banner as an extra nudge
+      document.getElementById('install-title').textContent = 'Add to Home Screen';
+      document.getElementById('install-subtitle').textContent = 'Install for quick one-tap access in the field';
       document.getElementById('install-btn').textContent = 'Install';
       document.getElementById('install-btn').onclick = installApp;
       document.getElementById('install-banner').style.display = 'flex';
@@ -1169,13 +1192,46 @@ ${bar}`;
         deferredInstallPrompt.userChoice.then(() => {
           deferredInstallPrompt = null;
           document.getElementById('install-banner').style.display = 'none';
+          headerBtn.style.display = 'none';
         });
       }
     }
 
-    window.addEventListener('appinstalled', () => {
-      document.getElementById('install-banner').style.display = 'none';
-    });
+    // ── Single entry point: header button click ──
+    function triggerInstall() {
+      if (isStandalone) return;
+
+      // Best case: native one-click prompt is ready (Chrome/Edge, Android/Desktop)
+      if (deferredInstallPrompt) {
+        installApp();
+        return;
+      }
+
+      // Otherwise show platform-specific instructions
+      const el = document.getElementById('install-instructions');
+      if (isIOS && isSafari) {
+        el.innerHTML = `1. Tap the <strong>Share</strong> button <span style="display:inline-block;">⬆️</span> in the Safari toolbar<br/><br/>
+          2. Scroll down and tap <strong>"Add to Home Screen"</strong><br/><br/>
+          3. Tap <strong>Add</strong> — the app icon will appear on your home screen`;
+      } else if (isIOS && !isSafari) {
+        el.innerHTML = `On iPhone/iPad, one-tap install only works in <strong>Safari</strong>.<br/><br/>
+          Open this page in Safari, tap the <strong>Share</strong> button, then <strong>"Add to Home Screen"</strong>.`;
+      } else if (isAndroid) {
+        el.innerHTML = `Tap your browser's <strong>menu (⋮)</strong> in the top right, then choose <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.<br/><br/>
+          For the smoothest experience, use <strong>Chrome</strong> on Android.`;
+      } else if (isFirefox) {
+        el.innerHTML = `Firefox doesn't support one-click app install.<br/><br/>
+          Bookmark this page instead: press <strong>Ctrl/Cmd + D</strong>, or use your browser menu → <strong>"Add to Home Screen"</strong> on mobile.`;
+      } else {
+        el.innerHTML = `Look for an <strong>install icon ⊕</strong> in your browser's address bar, or open the browser menu and choose <strong>"Install CARDIAC-CPR…"</strong>.<br/><br/>
+          If that's not available, bookmark this page with <strong>Ctrl/Cmd + D</strong> for quick access.`;
+      }
+      document.getElementById('install-modal').style.display = 'flex';
+    }
+
+    function closeInstallModal() {
+      document.getElementById('install-modal').style.display = 'none';
+    }
 
     // ── Register service worker (required for PWA install on Android) ──
     if ('serviceWorker' in navigator) {
@@ -1184,16 +1240,16 @@ ${bar}`;
   </script>
   <!-- EmailJS Send Modal -->
   <div id="ejs-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:24px; max-width:420px; width:100%;">
-      <h3 style="font-family:'Space Mono',monospace; color:#e63946; margin-bottom:6px; font-size:1rem;">Send Report via Email</h3>
-      <p style="font-size:0.78rem; color:#cdd5de; margin-bottom:16px; line-height:1.5;">Enter the recipient's email address. The completed CARDIAC-CPR report will be sent directly — no mail app required.</p>
-      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#e6edf3; font-weight:600; margin-bottom:6px;">Recipient Email</label>
+    <div style="background:#f6f8fa; border:1px solid #d0d7de; border-radius:12px; padding:24px; max-width:420px; width:100%;">
+      <h3 style="font-family:'Space Mono',monospace; color:#b91c1c; margin-bottom:6px; font-size:1rem;">Send Report via Email</h3>
+      <p style="font-size:0.78rem; color:#57606a; margin-bottom:16px; line-height:1.5;">Enter the recipient's email address. The completed CARDIAC-CPR report will be sent directly — no mail app required.</p>
+      <label style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#0f172a; font-weight:600; margin-bottom:6px;">Recipient Email</label>
       <input id="ejs-to-email" type="email" placeholder="attending@hospital.org"
-        style="width:100%; background:#0d1117; border:1px solid #30363d; border-radius:8px; color:#e6edf3; font-size:1rem; padding:10px 14px; outline:none; margin-bottom:14px;" />
-      <div id="ejs-status" style="font-size:0.8rem; min-height:20px; margin-bottom:12px; color:#f4a261;"></div>
+        style="width:100%; background:#ffffff; border:1px solid #d0d7de; border-radius:8px; color:#0f172a; font-size:1rem; padding:10px 14px; outline:none; margin-bottom:14px;" />
+      <div id="ejs-status" style="font-size:0.8rem; min-height:20px; margin-bottom:12px; color:#b45309;"></div>
       <div style="display:flex; gap:10px;">
-        <button onclick="sendViaEmailJS()" style="flex:1; background:#e63946; color:#fff; border:none; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Send</button>
-        <button onclick="closeEJSModal()" style="flex:1; background:#21262d; color:#e6edf3; border:1px solid #30363d; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onclick="sendViaEmailJS()" style="flex:1; background:#b91c1c; color:#fff; border:none; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Send</button>
+        <button onclick="closeEJSModal()" style="flex:1; background:#eef1f4; color:#0f172a; border:1px solid #d0d7de; border-radius:8px; padding:11px; font-size:0.9rem; font-weight:600; cursor:pointer;">Cancel</button>
       </div>
     </div>
   </div>
