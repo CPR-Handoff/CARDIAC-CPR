@@ -99,6 +99,33 @@
 
     .header-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 
+    /* ── Section wrappers (added with handoff-order redesign) ── */
+    .sec { min-width: 0; }
+
+    /* ── Wide screens (iPad landscape / desktop): two-column flow ── */
+    @media (min-width: 1024px) {
+      main { max-width: 1240px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; align-items: start; }
+      main .sec.loc, main .sec.notes, main .action-row { grid-column: 1 / -1; }
+    }
+
+    /* ── Dark mode: follows the device setting (low-light / ambulance use) ── */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:        #0d1522;
+        --surface:   #16202f;
+        --border:    #33445c;
+        --text:      #e8eef5;
+        --muted:     #9fb0c3;
+        --pill-bg:   #1d2a3d;
+        --warn:      #fbbf24;
+      }
+      .disclaimer-banner { background: #2a1f08; color: #fcd9a0; border-bottom-color: #7c5a2e; }
+      .header-left h1 { color: #f87171; }
+      #install-banner { background: #16202f !important; border-bottom-color: #33445c !important; }
+      #install-title { color: #e8eef5 !important; }
+      #install-subtitle { color: #9fb0c3 !important; }
+    }
+
     /* ── Disclaimer Banner ── */
     .disclaimer-banner {
       background: #fff7ed;
@@ -407,7 +434,7 @@
 
   <!-- Disclaimer Banner -->
   <div class="disclaimer-banner">
-    <strong>⚠️ EDUCATIONAL USE ONLY</strong> — This tool is not medical advice and does not constitute clinical guidance. See full disclaimer below.
+    <strong>⚠️ EDUCATIONAL USE ONLY</strong> — <strong>Do not enter any patient-identifying information, including names, dates of birth, or medical record numbers, into this tool.</strong> This tool is not medical advice and does not constitute clinical guidance. See full disclaimer below.
   </div>
 
   <!-- Install Banner -->
@@ -428,7 +455,19 @@
   <!-- Main -->
   <main id="form-area">
 
-    <!-- Location of Arrest -->
+    <section class="sec">
+<!-- A: Age -->
+    <div class="section-pill">
+      <span class="letter">A</span><span class="label">Age</span>
+    </div>
+    <div class="card">
+      <label class="field-label">Age (years)</label>
+      <select id="age" style="max-width:180px;"></select>
+    </div>
+    </section>
+
+    <section class="sec loc">
+<!-- Location of Arrest -->
     <div class="location-row">
       <span class="loc-label">Location of Arrest</span>
       <div class="option-grid">
@@ -437,26 +476,61 @@
         <label class="opt-btn"><input type="radio" name="location" value="Outside"><span class="opt-label">🌳 Outside</span></label>
       </div>
     </div>
+    </section>
 
-    <!-- C: Cause -->
+    <section class="sec">
+<!-- R: Report / Witnessed -->
     <div class="section-pill">
-      <span class="letter">C</span><span class="label">Cause (if known)</span>
+      <span class="letter" style="background:var(--accent2);color:#fff;">R</span><span class="label">Report</span>
     </div>
     <div class="card">
-      <label class="field-label">Suspected or known cause</label>
-      <input type="text" id="cause" placeholder="e.g. STEMI, drowning, trauma, OD, unknown…" />
+      <div class="sub-label">Witnessed Arrest?</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="witnessed" value="Yes"><span class="opt-label">Yes</span></label>
+        <label class="opt-btn"><input type="radio" name="witnessed" value="No"><span class="opt-label">No</span></label>
+      </div>
     </div>
+    </section>
 
-    <!-- A: Age -->
+    <section class="sec">
+<!-- I: Interventions -->
     <div class="section-pill">
-      <span class="letter">A</span><span class="label">Age</span>
+      <span class="letter">I</span><span class="label">Interventions</span>
     </div>
     <div class="card">
-      <label class="field-label">Age (years)</label>
-      <select id="age" style="max-width:180px;"></select>
-    </div>
+      <div class="sub-label">Bystander CPR</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="bystander_cpr" value="Yes"><span class="opt-label">Yes</span></label>
+        <label class="opt-btn"><input type="radio" name="bystander_cpr" value="No"><span class="opt-label">No</span></label>
+      </div>
 
-    <!-- R: Rhythm -->
+      <hr class="section-divider" />
+
+      <div class="sub-label">Defibrillation attempts</div>
+      <div class="option-grid">
+        <label class="opt-btn"><input type="radio" name="defib" value="Yes" id="defib_yes"><span class="opt-label">Yes</span></label>
+        <label class="opt-btn"><input type="radio" name="defib" value="No"><span class="opt-label">No</span></label>
+      </div>
+      <div id="defib_count_wrap" style="display:none;margin-top:12px;">
+        <label class="field-label">How many times?</label>
+        <input type="number" id="defib_count" min="1" max="99" placeholder="—" style="max-width:120px;" />
+      </div>
+    </div>
+    </section>
+
+    <section class="sec">
+<!-- D: Downtime -->
+    <div class="section-pill">
+      <span class="letter">D</span><span class="label">Downtime</span>
+    </div>
+    <div class="card">
+      <label class="field-label">Estimated downtime (minutes)</label>
+      <select id="downtime" style="max-width:180px;"></select>
+    </div>
+    </section>
+
+    <section class="sec">
+<!-- R: Rhythm -->
     <div class="section-pill">
       <span class="letter">R</span><span class="label">Rhythm</span>
     </div>
@@ -489,54 +563,10 @@
         <input type="text" id="rhythm_recent_other" placeholder="Specify most recent rhythm…" />
       </div>
     </div>
+    </section>
 
-    <!-- D: Downtime -->
-    <div class="section-pill">
-      <span class="letter">D</span><span class="label">Downtime</span>
-    </div>
-    <div class="card">
-      <label class="field-label">Estimated downtime (minutes)</label>
-      <select id="downtime" style="max-width:180px;"></select>
-    </div>
-
-    <!-- I: Interventions -->
-    <div class="section-pill">
-      <span class="letter">I</span><span class="label">Interventions</span>
-    </div>
-    <div class="card">
-      <div class="sub-label">Bystander CPR</div>
-      <div class="option-grid">
-        <label class="opt-btn"><input type="radio" name="bystander_cpr" value="Yes"><span class="opt-label">Yes</span></label>
-        <label class="opt-btn"><input type="radio" name="bystander_cpr" value="No"><span class="opt-label">No</span></label>
-      </div>
-
-      <hr class="section-divider" />
-
-      <div class="sub-label">Defibrillation attempts</div>
-      <div class="option-grid">
-        <label class="opt-btn"><input type="radio" name="defib" value="Yes" id="defib_yes"><span class="opt-label">Yes</span></label>
-        <label class="opt-btn"><input type="radio" name="defib" value="No"><span class="opt-label">No</span></label>
-      </div>
-      <div id="defib_count_wrap" style="display:none;margin-top:12px;">
-        <label class="field-label">How many times?</label>
-        <input type="number" id="defib_count" min="1" max="99" placeholder="—" style="max-width:120px;" />
-      </div>
-    </div>
-
-    <!-- A: Airway -->
-    <div class="section-pill">
-      <span class="letter">A</span><span class="label">Airway Type</span>
-    </div>
-    <div class="card">
-      <div class="option-grid">
-        <label class="opt-btn"><input type="radio" name="airway" value="ET Tube"><span class="opt-label">ET Tube</span></label>
-        <label class="opt-btn"><input type="radio" name="airway" value="LMA"><span class="opt-label">LMA</span></label>
-        <label class="opt-btn"><input type="radio" name="airway" value="King Airway"><span class="opt-label">King Airway</span></label>
-        <label class="opt-btn"><input type="radio" name="airway" value="Not Intubated"><span class="opt-label">Not Intubated</span></label>
-      </div>
-    </div>
-
-    <!-- C: Circulation -->
+    <section class="sec">
+<!-- C: Circulation -->
     <div class="section-pill">
       <span class="letter">C</span><span class="label">Circulation</span>
     </div>
@@ -569,20 +599,25 @@
         <label class="opt-btn"><input type="checkbox" name="access" value="None"><span class="opt-label">None</span></label>
       </div>
     </div>
+    </section>
 
-    <!-- C: Code Status -->
+    <section class="sec">
+<!-- A: Airway -->
     <div class="section-pill">
-      <span class="letter" style="background:var(--accent2);color:#fff;">C</span><span class="label">Code Status</span>
+      <span class="letter">A</span><span class="label">Airway Type</span>
     </div>
     <div class="card">
       <div class="option-grid">
-        <label class="opt-btn"><input type="radio" name="code_status" value="Unknown"><span class="opt-label">Unknown</span></label>
-        <label class="opt-btn"><input type="radio" name="code_status" value="DNR"><span class="opt-label">DNR</span></label>
-        <label class="opt-btn"><input type="radio" name="code_status" value="Full Code"><span class="opt-label">Full Code</span></label>
+        <label class="opt-btn"><input type="radio" name="airway" value="ET Tube"><span class="opt-label">ET Tube</span></label>
+        <label class="opt-btn"><input type="radio" name="airway" value="LMA"><span class="opt-label">LMA</span></label>
+        <label class="opt-btn"><input type="radio" name="airway" value="King Airway"><span class="opt-label">King Airway</span></label>
+        <label class="opt-btn"><input type="radio" name="airway" value="Not Intubated"><span class="opt-label">Not Intubated</span></label>
       </div>
     </div>
+    </section>
 
-    <!-- P: Pre-Hospital Medications -->
+    <section class="sec">
+<!-- P: Pre-Hospital Medications -->
     <div class="section-pill">
       <span class="letter" style="background:var(--accent2);color:#fff;">P</span><span class="label">Pre-Hospital Medications</span>
     </div>
@@ -625,23 +660,43 @@
         </div>
       </div>
     </div>
+    </section>
 
-    <!-- R: Report / Witnessed -->
+    <section class="sec">
+<!-- C: Cause -->
     <div class="section-pill">
-      <span class="letter" style="background:var(--accent2);color:#fff;">R</span><span class="label">Report</span>
+      <span class="letter">C</span><span class="label">Cause (if known)</span>
     </div>
     <div class="card">
-      <div class="sub-label">Witnessed Arrest?</div>
+      <label class="field-label">Suspected or known cause</label>
+      <input type="text" id="cause" placeholder="e.g. STEMI, drowning, trauma, OD, unknown…" />
+    </div>
+    </section>
+
+    <section class="sec">
+<!-- C: Code Status -->
+    <div class="section-pill">
+      <span class="letter" style="background:var(--accent2);color:#fff;">C</span><span class="label">Code Status</span>
+    </div>
+    <div class="card">
       <div class="option-grid">
-        <label class="opt-btn"><input type="radio" name="witnessed" value="Yes"><span class="opt-label">Yes</span></label>
-        <label class="opt-btn"><input type="radio" name="witnessed" value="No"><span class="opt-label">No</span></label>
+        <label class="opt-btn"><input type="radio" name="code_status" value="Unknown"><span class="opt-label">Unknown</span></label>
+        <label class="opt-btn"><input type="radio" name="code_status" value="DNR"><span class="opt-label">DNR</span></label>
+        <label class="opt-btn"><input type="radio" name="code_status" value="Full Code"><span class="opt-label">Full Code</span></label>
       </div>
+    </div>
+    </section>
 
-      <hr class="section-divider" />
-
+    <section class="sec notes">
+<!-- Additional Notes -->
+    <div class="section-pill">
+      <span class="label">Additional Notes</span>
+    </div>
+    <div class="card">
       <label class="field-label">Additional notes</label>
       <textarea id="notes" placeholder="Free text notes from EMS crew…"></textarea>
     </div>
+    </section>
 
     <!-- Action Buttons -->
     <div class="action-row">
@@ -732,7 +787,7 @@
   <footer>
     <div class="footer-disclaimer">
       <strong style="color:var(--warn);">⚠️ Disclaimer — Please Read</strong><br/><br/>
-      This tool is intended <strong>solely for educational and training purposes</strong>. It does not constitute medical advice, clinical guidance, or a substitute for professional judgment. The creators, contributors, and any affiliated institutions assume <strong>no liability</strong> whatsoever for patient outcomes, clinical decisions, or any use of this tool in any setting. All resuscitation decisions must be made by qualified, licensed medical professionals in accordance with local protocols, applicable laws, and current evidence-based guidelines.<br/><br/>
+      This tool is intended <strong>solely for educational and training purposes</strong>. <strong>Do not enter any patient-identifying information, including names, dates of birth, or medical record numbers, into this tool.</strong> It does not constitute medical advice, clinical guidance, or a substitute for professional judgment. The creators, contributors, and any affiliated institutions assume <strong>no liability</strong> whatsoever for patient outcomes, clinical decisions, or any use of this tool in any setting. All resuscitation decisions must be made by qualified, licensed medical professionals in accordance with local protocols, applicable laws, and current evidence-based guidelines.<br/><br/>
       This tool is not a medical device and has not been reviewed or approved by any regulatory authority (including the FDA, CE, or equivalent). Use of this tool does not imply endorsement by any institution or health system. <strong>Do not rely on this tool for direct patient care.</strong><br/><br/>
       <strong style="color:var(--warn);">Data Collection Notice:</strong> Data entered into this tool may be retained for quality improvement purposes and may be used for research in the future. By using this tool, you acknowledge and consent to this potential use of submitted data.<br/><br/>
       <strong>Please do not enter direct patient identifiers</strong> — including patient name, date of birth, medical record number, or any other information that could directly identify an individual. If such information is inadvertently submitted, we will make reasonable efforts to identify and remove it; however, we cannot guarantee its complete deletion. Use only de-identified or aggregate clinical information when completing this form.
@@ -891,28 +946,18 @@
   Generated: ${d.timestamp}
 ${bar}
 
-  LOCATION OF ARREST: ${d.location}
-
-${thin}
-  C — CAUSE (if known)
-${thin}
-${row('Cause:', d.cause)}
-
 ${thin}
   A — AGE
 ${thin}
 ${row('Age:', d.age)}
 
-${thin}
-  R — RHYTHM
-${thin}
-${row('Initial rhythm:', d.rhythm_initial)}
-${row('Most recent rhythm:', d.rhythm_recent)}
+  LOCATION OF ARREST: ${d.location}
+
 
 ${thin}
-  D — DOWNTIME
+  R — REPORT
 ${thin}
-${row('Estimated downtime:', d.downtime)}
+${row('Witnessed arrest:', d.witnessed)}
 
 ${thin}
   I — INTERVENTIONS
@@ -921,9 +966,15 @@ ${row('Bystander CPR:', d.bystander_cpr)}
 ${row('Defibrillation:', d.defibrillation)}
 
 ${thin}
-  A — AIRWAY
+  D — DOWNTIME
 ${thin}
-${row('Airway type:', d.airway)}
+${row('Estimated downtime:', d.downtime)}
+
+${thin}
+  R — RHYTHM
+${thin}
+${row('Initial rhythm:', d.rhythm_initial)}
+${row('Most recent rhythm:', d.rhythm_recent)}
 
 ${thin}
   C — CIRCULATION
@@ -932,9 +983,9 @@ ${row('ROSC:', d.rosc)}
 ${row('Vascular access:', d.vascular_access)}
 
 ${thin}
-  C — CODE STATUS
+  A — AIRWAY
 ${thin}
-${row('Code status:', d.code_status)}
+${row('Airway type:', d.airway)}
 
 ${thin}
   P — PRE-HOSPITAL MEDICATIONS
@@ -947,9 +998,19 @@ ${row('Lidocaine:', d.lidocaine)}
 ${row('Other:', d.other_meds)}
 
 ${thin}
-  R — REPORT
+  C — CAUSE (if known)
 ${thin}
-${row('Witnessed arrest:', d.witnessed)}
+${row('Cause:', d.cause)}
+
+
+${thin}
+  C — CODE STATUS
+${thin}
+${row('Code status:', d.code_status)}
+
+${thin}
+  ADDITIONAL NOTES
+${thin}
   Notes: ${d.notes}
 
 ${bar}
@@ -1017,26 +1078,26 @@ ${bar}`;
       const rows = [
         ['Field', 'Value'],
         ['Timestamp', clean(d.timestamp)],
-        ['Location of Arrest', clean(d.location)],
-        ['C - Cause', clean(d.cause)],
         ['A - Age', clean(d.age)],
-        ['R - Initial Rhythm', clean(d.rhythm_initial)],
-        ['R - Most Recent Rhythm', clean(d.rhythm_recent)],
-        ['D - Downtime', clean(d.downtime)],
+        ['Location of Arrest', clean(d.location)],
+        ['R - Witnessed Arrest', clean(d.witnessed)],
         ['I - Bystander CPR', clean(d.bystander_cpr)],
         ['I - Defibrillation', clean(d.defibrillation)],
-        ['A - Airway Type', clean(d.airway)],
+        ['D - Downtime', clean(d.downtime)],
+        ['R - Initial Rhythm', clean(d.rhythm_initial)],
+        ['R - Most Recent Rhythm', clean(d.rhythm_recent)],
         ['C - ROSC', clean(d.rosc)],
         ['C - Vascular Access', clean(d.vascular_access)],
-        ['C - Code Status', clean(d.code_status)],
+        ['A - Airway Type', clean(d.airway)],
         ['P - Epinephrine', clean(d.epi)],
         ['P - Calcium', clean(d.calcium)],
         ['P - Bicarbonate', clean(d.bicarb)],
         ['P - Amiodarone', clean(d.amiodarone)],
         ['P - Lidocaine', clean(d.lidocaine)],
         ['P - Other Medications', clean(d.other_meds)],
-        ['R - Witnessed Arrest', clean(d.witnessed)],
-        ['R - Notes', clean(d.notes)],
+        ['C - Cause', clean(d.cause)],
+        ['C - Code Status', clean(d.code_status)],
+        ['Additional Notes', clean(d.notes)],
       ];
       // UTF-8 BOM ensures Excel opens without encoding issues
       const BOM = '\uFEFF';
