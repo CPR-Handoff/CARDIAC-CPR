@@ -124,6 +124,11 @@
       #install-banner { background: #16202f !important; border-bottom-color: #33445c !important; }
       #install-title { color: #e8eef5 !important; }
       #install-subtitle { color: #9fb0c3 !important; }
+      /* Labels were hardcoded near-black (#0f172a) for light mode; flip them in dark mode */
+      .section-pill .label,
+      label.field-label,
+      .location-row .loc-label,
+      .sub-label { color: var(--text); }
     }
 
     /* ── Disclaimer Banner ── */
