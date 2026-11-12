@@ -19,6 +19,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
+  <script>
+    /* Theme: light by default — the phone's system dark mode is NOT followed.
+       Dark is an on-page option (header toggle), remembered per device. */
+    (function(){ try { if (localStorage.getItem('cpr_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {} })();
+  </script>
   <style>
     :root {
       --bg:        #ffffff;
@@ -109,27 +114,27 @@
     }
 
     /* ── Dark mode: follows the device setting (low-light / ambulance use) ── */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg:        #0d1522;
-        --surface:   #16202f;
-        --border:    #33445c;
-        --text:      #e8eef5;
-        --muted:     #9fb0c3;
-        --pill-bg:   #1d2a3d;
-        --warn:      #fbbf24;
-      }
-      .disclaimer-banner { background: #2a1f08; color: #fcd9a0; border-bottom-color: #7c5a2e; }
-      .header-left h1 { color: #f87171; }
-      #install-banner { background: #16202f !important; border-bottom-color: #33445c !important; }
-      #install-title { color: #e8eef5 !important; }
-      #install-subtitle { color: #9fb0c3 !important; }
-      /* Labels were hardcoded near-black (#0f172a) for light mode; flip them in dark mode */
-      .section-pill .label,
-      label.field-label,
-      .location-row .loc-label,
-      .sub-label { color: var(--text); }
+    /* ── Dark theme (opt-in via the header toggle; sets data-theme="dark" on <html>) ── */
+    :root[data-theme="dark"] {
+      --bg:        #0d1522;
+      --surface:   #16202f;
+      --border:    #33445c;
+      --text:      #e8eef5;
+      --muted:     #9fb0c3;
+      --pill-bg:   #1d2a3d;
+      --warn:      #fbbf24;
+      color-scheme: dark;
     }
+    [data-theme="dark"] .disclaimer-banner { background: #2a1f08; color: #fcd9a0; border-bottom-color: #7c5a2e; }
+    [data-theme="dark"] .header-left h1 { color: #f87171; }
+    [data-theme="dark"] #install-banner { background: #16202f !important; border-bottom-color: #33445c !important; }
+    [data-theme="dark"] #install-title { color: #e8eef5 !important; }
+    [data-theme="dark"] #install-subtitle { color: #9fb0c3 !important; }
+    /* Labels are hardcoded near-black (#0f172a) for light mode; flip them in dark mode */
+    [data-theme="dark"] .section-pill .label,
+    [data-theme="dark"] label.field-label,
+    [data-theme="dark"] .location-row .loc-label,
+    [data-theme="dark"] .sub-label { color: var(--text); }
 
     /* ── Disclaimer Banner ── */
     .disclaimer-banner {
@@ -434,6 +439,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
         Install App
       </button>
+      <button class="btn btn-secondary" id="theme-toggle" onclick="toggleTheme()" title="Switch between light and dark theme">🌙 Dark</button>
       <button class="btn btn-secondary" onclick="resetForm()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
         Reset
@@ -1135,6 +1141,22 @@ ${bar}`;
     }
 
     // ── Reset form ──
+    function updateThemeBtn() {
+      var b = document.getElementById('theme-toggle');
+      if (!b) return;
+      var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      b.textContent = dark ? '☀️ Light' : '🌙 Dark';
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', dark ? '#0d1522' : '#ffffff');
+    }
+    function toggleTheme() {
+      var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (dark) { document.documentElement.removeAttribute('data-theme'); try { localStorage.setItem('cpr_theme', 'light'); } catch (e) {} }
+      else { document.documentElement.setAttribute('data-theme', 'dark'); try { localStorage.setItem('cpr_theme', 'dark'); } catch (e) {} }
+      updateThemeBtn();
+    }
+    document.addEventListener('DOMContentLoaded', updateThemeBtn);
+
     function resetForm() {
       if (!confirm('Clear all fields and start over?')) return;
       document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
