@@ -107,12 +107,6 @@
     /* ── Section wrappers (added with handoff-order redesign) ── */
     .sec { min-width: 0; }
 
-    /* ── Wide screens (iPad landscape / desktop): two-column flow ── */
-    @media (min-width: 1024px) {
-      main { max-width: 1240px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; align-items: start; }
-      main .sec.loc, main .sec.notes, main .action-row { grid-column: 1 / -1; }
-    }
-
     /* ── Dark mode: follows the device setting (low-light / ambulance use) ── */
     /* ── Dark theme (opt-in via the header toggle; sets data-theme="dark" on <html>) ── */
     :root[data-theme="dark"] {
@@ -378,6 +372,48 @@
       margin-top: 24px;
     }
 
+    /* ── Wide screens: use the full width — 2, then 3, then 4 columns ──
+       Defined AFTER the base main/footer rules on purpose: the previous
+       two-column block sat before them, so its max-width was overridden
+       back to 780px and wide monitors got two narrow columns centred in
+       a sea of empty space. These rules must stay below the base rules. */
+    @media (min-width: 1024px) {
+      main {
+        max-width: 1280px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 24px;
+        align-items: start;
+      }
+      main .sec.loc, main .sec.notes, main .action-row { grid-column: 1 / -1; }
+      footer, .below-main { max-width: 1280px !important; }
+    }
+    @media (min-width: 1440px) {
+      main {
+        max-width: 1760px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding-top: 20px;
+      }
+      main .sec.loc { grid-column: span 2; }
+      main .sec.meds { grid-column: span 2; }
+      main .sec.notes { grid-column: span 2; }
+      main .action-row { grid-column: 1 / -1; }
+      footer, .below-main { max-width: 1760px !important; }
+    }
+    @media (min-width: 2000px) {
+      main {
+        max-width: 2400px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        padding-left: 32px;
+        padding-right: 32px;
+      }
+      main .sec.loc { grid-column: span 2; }
+      main .sec.meds { grid-column: span 2; }
+      main .sec.notes { grid-column: span 3; }
+      main .action-row { grid-column: 1 / -1; }
+      footer, .below-main { max-width: 2400px !important; }
+    }
+
     /* ── Divider ── */
     hr.section-divider {
       border: none;
@@ -635,7 +671,7 @@
     </div>
     </section>
 
-    <section class="sec">
+    <section class="sec meds">
 <!-- P: Pre-Hospital Medications -->
     <div class="section-pill">
       <span class="letter" style="background:var(--accent2);color:#fff;">P</span><span class="label">Pre-Hospital Medications</span>
@@ -741,7 +777,7 @@
 
   <!-- Footer -->
   <!-- Feedback Section -->
-  <div style="max-width:780px; margin:0 auto; padding:0 16px 16px;">
+  <div class="below-main" style="max-width:780px; margin:0 auto; padding:0 16px 16px;">
     <div style="background:linear-gradient(135deg,#fff7ed,#fef3e2); border:1.5px solid var(--warn-solid); border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
       <div>
         <div style="font-size:1rem; font-weight:700; color:var(--warn); margin-bottom:4px;">🐛 Noticed a bug? Have a suggestion?</div>
@@ -803,7 +839,7 @@
     </div>
   </div>
 
-  <div style="max-width:860px; margin:26px auto 0; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px; text-align:center;">
+  <div class="below-main" style="max-width:860px; margin:26px auto 0; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px; text-align:center;">
     <p style="font-size:0.92rem; line-height:1.55; color:var(--ink);">Want a report card in badge size (the small PDF) or poster size (the large PDF) for your resuscitation bay wall? You can download and print them from here:<br/>
     <a href="CARDIAC-CPR-badge-card.pdf" download style="color:var(--accent2); font-weight:700;">Badge size (PDF)</a> &nbsp;·&nbsp; <a href="CARDIAC-CPR-poster.pdf" download style="color:var(--accent2); font-weight:700;">Poster size (PDF)</a></p>
   </div>
